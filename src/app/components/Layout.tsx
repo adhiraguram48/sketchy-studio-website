@@ -1,0 +1,267 @@
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { motion, AnimatePresence, useScroll } from 'motion/react';
+import { Menu, X, Instagram, Mail, Phone, ArrowUpRight } from 'lucide-react';
+import { C, DotTrio } from './SketchyUI';
+import { useEdit } from '../context/EditContext';
+
+const NAV_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Work', href: '/work' },
+  { label: 'Services', href: '/services' },
+  { label: 'About', href: '/about' },
+  { label: 'Journal', href: '/journal' },
+  { label: 'Contact', href: '/contact' },
+];
+
+export function Navigation() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { scrollY } = useScroll();
+
+  useEffect(() => {
+    const unsub = scrollY.on('change', v => setScrolled(v > 60));
+    return unsub;
+  }, [scrollY]);
+
+  useEffect(() => { setIsOpen(false); }, [location]);
+
+  return (
+    <>
+      <motion.nav
+        initial={{ y: -80 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+        style={{
+          backgroundColor: scrolled ? `${C.void}F0` : 'transparent',
+          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          borderBottom: scrolled ? `1px solid ${C.surface}` : 'none',
+        }}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <motion.div whileHover={{ rotate: -5, scale: 1.05 }} transition={{ type: 'spring', stiffness: 400 }}>
+              <span style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-xl font-black">
+                Sketchy<span style={{ color: C.purple }}>.</span>
+              </span>
+            </motion.div>
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => {
+              const active = location.pathname === link.href || (link.href !== '/' && location.pathname.startsWith(link.href));
+              return (
+                <Link key={link.href} to={link.href}>
+                  <motion.span
+                    whileHover={{ y: -1 }}
+                    style={{ fontFamily: 'Sora, sans-serif', color: active ? C.pink : `${C.cream}CC` }}
+                    className="px-4 py-2 text-sm font-medium rounded-full transition-colors block relative"
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="nav-indicator"
+                        style={{ backgroundColor: `${C.pink}20` }}
+                        className="absolute inset-0 rounded-full"
+                      />
+                    )}
+                    <span className="relative z-10">{link.label}</span>
+                  </motion.span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* CTA */}
+          <div className="hidden md:flex items-center gap-3">
+            <motion.button
+              onClick={() => navigate('/contact')}
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              style={{ backgroundColor: C.pink, fontFamily: 'Sora, sans-serif', color: C.void }}
+              className="px-5 py-2 rounded-full text-sm font-black uppercase tracking-wide"
+            >
+              Start a Project
+            </motion.button>
+          </div>
+
+          {/* Mobile menu button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setIsOpen(!isOpen)}
+            style={{ color: C.cream }}
+            className="md:hidden"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </motion.button>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            style={{ backgroundColor: C.void, zIndex: 49 }}
+            className="fixed inset-0 flex flex-col justify-center px-8"
+          >
+            <div className="flex flex-col gap-2">
+              {NAV_LINKS.map((link, i) => (
+                <Link key={link.href} to={link.href}>
+                  <motion.div
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                    style={{
+                      fontFamily: 'Fraunces, Georgia, serif',
+                      color: location.pathname === link.href ? C.pink : C.cream,
+                    }}
+                    className="text-4xl font-black py-2 border-b border-white/10"
+                  >
+                    {link.label}
+                  </motion.div>
+                </Link>
+              ))}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                onClick={() => navigate('/contact')}
+                style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif' }}
+                className="mt-6 px-6 py-3 rounded-full font-black uppercase tracking-wide text-center"
+              >
+                Start a Project
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// Edit Mode Toggle
+export function EditToggle() {
+  const { editMode, toggleEditMode, resetContent } = useEdit();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1 }}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2"
+    >
+      <AnimatePresence>
+        {editMode && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => { if (window.confirm('Reset all content to defaults?')) resetContent(); }}
+            style={{ backgroundColor: '#FF4444', fontFamily: 'Sora, sans-serif' }}
+            className="px-4 py-2 rounded-full text-white text-xs font-black uppercase tracking-wide shadow-lg"
+          >
+            Reset Content
+          </motion.button>
+        )}
+      </AnimatePresence>
+      <motion.button
+        onClick={toggleEditMode}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        style={{ backgroundColor: editMode ? C.cyan : C.purple, color: C.void, fontFamily: 'Sora, sans-serif' }}
+        className="px-5 py-3 rounded-full font-black text-sm shadow-xl uppercase tracking-wide flex items-center gap-2"
+      >
+        {editMode ? '✓ Save Mode' : '✏️ Edit Mode'}
+      </motion.button>
+    </motion.div>
+  );
+}
+
+// Footer
+export function Footer() {
+  const navigate = useNavigate();
+  const { content } = useEdit();
+
+  return (
+    <footer style={{ backgroundColor: C.void, borderTop: `1px solid ${C.surface}` }} className="relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <div style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-3xl font-black mb-3">
+              The Sketchy Studio<span style={{ color: C.purple }}>.</span>
+            </div>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm mb-6 max-w-sm">
+              {content.nav.tagline}
+            </p>
+            <DotTrio />
+          </div>
+
+          {/* Nav */}
+          <div>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple }} className="text-xs font-black uppercase tracking-widest mb-4">
+              Navigate
+            </p>
+            <div className="flex flex-col gap-2">
+              {NAV_LINKS.map(link => (
+                <Link key={link.href} to={link.href} style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm hover:text-white transition-colors">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple }} className="text-xs font-black uppercase tracking-widest mb-4">
+              Get In Touch
+            </p>
+            <div className="flex flex-col gap-3">
+              <a href={`mailto:${content.nav.email}`} style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm hover:text-white transition-colors flex items-center gap-2">
+                <Mail size={14} /> {content.nav.email}
+              </a>
+              <a href="https://instagram.com/thesketchystudio" target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm hover:text-white transition-colors flex items-center gap-2">
+                <Instagram size={14} /> {content.nav.instagram}
+              </a>
+              <a href={`tel:${content.nav.phone}`} style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm hover:text-white transition-colors flex items-center gap-2">
+                <Phone size={14} /> {content.nav.phone}
+              </a>
+              <motion.button onClick={() => navigate('/contact')} whileHover={{ x: 4 }} style={{ color: C.pink, fontFamily: 'Sora, sans-serif' }} className="text-sm font-black flex items-center gap-1 mt-2">
+                Start a Project <ArrowUpRight size={14} />
+              </motion.button>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ borderTop: `1px solid ${C.surface}` }} className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40` }} className="text-xs">
+            © {new Date().getFullYear()} The Sketchy Studio. All rights reserved.
+          </p>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40` }} className="text-xs">
+            Built with obsessive attention to detail.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// Page layout wrapper
+export function PageLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Navigation />
+      <main className="min-h-screen">{children}</main>
+      <Footer />
+      <EditToggle />
+    </>
+  );
+}

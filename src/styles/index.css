@@ -1,0 +1,45 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Global overrides for Sketchy Studio */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0D0B10;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0D0B10;
+}
+::-webkit-scrollbar-thumb {
+  background: #9B5CE8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF6B9D;
+}
+
+/* Selection color */
+::selection {
+  background: #9B5CE860;
+  color: #FDFCFE;
+}
+
+/* Remove outline on focusable elements (we handle focus manually) */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #9B5CE8;
+  outline-offset: 2px;
+}

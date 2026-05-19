@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Sora:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
+
+@theme {
+  --font-fraunces: 'Fraunces', Georgia, serif;
+  --font-sora: 'Sora', system-ui, sans-serif;
+  --font-dm: 'DM Sans', system-ui, sans-serif;
+}
+
+* {
+  font-family: 'Sora', system-ui, sans-serif;
+}
+
+h1, h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 900;
+}
