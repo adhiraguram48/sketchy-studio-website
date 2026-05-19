@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Instagram, Calendar, Phone, ArrowUpRight, CheckCircle } from 'lucide-react';
+import { useForm } from '@formspree/react';
 import { C, FloatingOrbs, Squiggle, SectionLabel, Reveal, Callout, NoiseOverlay } from '../components/SketchyUI';
 import { useEdit } from '../context/EditContext';
 import { PageLayout } from '../components/Layout';
@@ -25,6 +26,7 @@ const BUDGET_OPTIONS = [
 
 export default function Contact() {
   const { content } = useEdit();
+  const [fsState, fsSubmit] = useForm('xgoqvrjp');
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -33,7 +35,6 @@ export default function Contact() {
     budget: '',
     message: '',
   });
-  const [sent, setSent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate() {
@@ -44,30 +45,11 @@ export default function Contact() {
     return e;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
-    // Replace YOUR_FORM_ID below with your Formspree form ID (free at formspree.io)
-    const FORMSPREE_ID = 'YOUR_FORM_ID';
-    try {
-      await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          company: form.company,
-          service: form.service,
-          budget: form.budget,
-          message: form.message,
-        }),
-      });
-    } catch {
-      // network error — still show success so user isn't stuck
-    }
-    setSent(true);
+    await fsSubmit(e);
   }
 
   const inputStyle = (field: string) => ({
@@ -103,7 +85,7 @@ export default function Contact() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Form */}
             <div className="lg:col-span-2">
-              {sent ? (
+              {fsState.succeeded ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -123,7 +105,7 @@ export default function Contact() {
                     We've got your message!
                   </h2>
                   <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80`, lineHeight: 1.6 }}>
-                    Thanks for reaching out. Caleb will get back to you within 1 business day. In the meantime, check out some of our work.
+                    Thanks for reaching out. We'll get back to you within 1 business day. In the meantime, check out some of our work.
                   </p>
                 </motion.div>
               ) : (
@@ -234,12 +216,18 @@ export default function Contact() {
 
                     <motion.button
                       type="submit"
-                      whileHover={{ scale: 1.03, y: -2 }}
+                      disabled={fsState.submitting}
+                      whileHover={{ scale: fsState.submitting ? 1 : 1.03, y: fsState.submitting ? 0 : -2 }}
                       whileTap={{ scale: 0.97 }}
-                      style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif' }}
+                      style={{
+                        backgroundColor: fsState.submitting ? `${C.pink}80` : C.pink,
+                        color: C.void,
+                        fontFamily: 'Sora, sans-serif',
+                        cursor: fsState.submitting ? 'not-allowed' : 'pointer',
+                      }}
                       className="w-full py-4 rounded-full font-black text-sm uppercase tracking-wide shadow-xl"
                     >
-                      Send it →
+                      {fsState.submitting ? 'Sending…' : 'Send it →'}
                     </motion.button>
                   </form>
                 </Reveal>
