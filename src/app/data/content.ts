@@ -111,7 +111,7 @@ export const defaultContent: SiteContent = {
     email: "hello@thesketchystudio.com",
     phone: "+91 94493 58959",
     instagram: "@thesketchystudio",
-    calendly: "https://calendly.com/thesketchystudio",
+    calendly: "https://calendly.com/d/ctzp-p9t-2c6/one-off-meeting",
   },
 
   home: {
