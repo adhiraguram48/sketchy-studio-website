@@ -176,7 +176,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="mb-4">
-              <img src="/logo.png" alt="The Sketchy Studio" style={{ height: 52, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+              <img src="/logo.png" alt="The Sketchy Studio" style={{ height: 52, width: 'auto' }} />
             </div>
             <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm mb-6 max-w-sm">
               {content.nav.tagline}
