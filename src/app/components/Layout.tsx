@@ -44,11 +44,14 @@ export function Navigation() {
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <motion.div whileHover={{ rotate: -5, scale: 1.05 }} transition={{ type: 'spring', stiffness: 400 }}>
-              <span style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-xl font-black">
-                Sketchy<span style={{ color: C.purple }}>.</span>
-              </span>
+          <Link to="/" className="flex items-center">
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              style={{ backgroundColor: 'white', borderRadius: 10, padding: '4px 14px 4px 10px', display: 'flex', alignItems: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.25)' }}
+            >
+              <img src="/logo.png" alt="The Sketchy Studio" style={{ height: 32, width: 'auto', display: 'block' }} />
             </motion.div>
           </Link>
 
@@ -172,8 +175,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-3xl font-black mb-3">
-              The Sketchy Studio<span style={{ color: C.purple }}>.</span>
+            <div className="mb-4">
+              <img src="/logo.png" alt="The Sketchy Studio" style={{ height: 52, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
             </div>
             <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm mb-6 max-w-sm">
               {content.nav.tagline}
