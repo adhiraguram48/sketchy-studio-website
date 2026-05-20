@@ -384,7 +384,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <motion.div style={{ y: heroY, position: 'relative', zIndex: 10, textAlign: 'center', width: '100%', maxWidth: 980, padding: '0 24px', paddingTop: 96 }}>
+        <motion.div style={{ y: heroY, position: 'relative', zIndex: 10, textAlign: 'center', width: '100%', maxWidth: 980, padding: '0 24px', paddingTop: 96, paddingBottom: 120 }}>
 
           {/* Pill */}
           <motion.div
@@ -424,7 +424,7 @@ export default function Home() {
 
           {/* Sub */}
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
-            style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}55`, fontSize: '1.05rem', lineHeight: 1.78, maxWidth: 420, margin: '0 auto 48px' }}>
+            style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}55`, fontSize: '0.88rem', fontWeight: 300, lineHeight: 1.78, maxWidth: 420, margin: '0 auto 48px' }}>
             {content.home.heroSub}
           </motion.p>
 
