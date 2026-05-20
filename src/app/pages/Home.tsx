@@ -365,7 +365,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
       </div>
 
       {/* Content */}
-      <motion.div style={{ y: heroY, position: 'relative', zIndex: 10, textAlign: 'center', width: '100%', maxWidth: 980, padding: '0 24px', paddingTop: 96, paddingBottom: 120 }}>
+      <motion.div style={{ y: heroY, position: 'relative', zIndex: 10, textAlign: 'center', width: '100%', maxWidth: 980, padding: '0 24px', paddingTop: 96, paddingBottom: 60 }}>
 
         {/* Pill */}
         <motion.div
@@ -427,21 +427,6 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
         </motion.div>
       </motion.div>
 
-      {/* Stats — glass bottom bar */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3 }}
-        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, borderTop: `1px solid ${C.surface}`, backgroundColor: `${C.void}E0`, backdropFilter: 'blur(20px)', padding: '22px 48px', display: 'flex', flexWrap: 'wrap', gap: '12px 56px', zIndex: 10 }}>
-        {content.home.stats.map((stat, i) => (
-          <motion.div key={stat.label}
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 + i * 0.1 }}
-            whileHover={{ scale: 1.05 }}
-          >
-            <div style={{ fontFamily: 'Fraunces, Georgia, serif', color: [C.pink, C.purple, C.cyan, C.yellow][i % 4], fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 900, lineHeight: 1 }}>
-              <CountUp value={stat.value} />
-            </div>
-            <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}35`, fontSize: 10, textTransform: 'uppercase', letterSpacing: 2.5, marginTop: 5 }}>{stat.label}</div>
-          </motion.div>
-        ))}
-      </motion.div>
     </section>
   );
 }
