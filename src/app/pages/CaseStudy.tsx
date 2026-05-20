@@ -13,11 +13,6 @@ function accentColor(tags: string[]): string {
   return C.pink;
 }
 
-// Split approach text into paragraphs for step-by-step display
-function parseApproach(text: string): string[] {
-  return text.split(/(?<=\.)\s+(?=[A-Z])/).filter(Boolean);
-}
-
 export default function CaseStudy() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -42,8 +37,7 @@ export default function CaseStudy() {
     );
   }
 
-  const accent = accentColor(project.tags);
-  const approachSteps = parseApproach(project.approach);
+  const accent = project.accentColor || accentColor(project.tags);
 
   return (
     <PageLayout>
@@ -191,7 +185,7 @@ export default function CaseStudy() {
           </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {approachSteps.map((step, i) => (
+            {project.approach.map((step, i) => (
               <Reveal key={i} delay={i * 0.07}>
                 <motion.div
                   whileHover={{ y: -4, scale: 1.01 }}

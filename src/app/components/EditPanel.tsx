@@ -1,112 +1,159 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronDown, ChevronUp, Check, Plus, Trash2, ArrowLeft, ImageIcon } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Check, Plus, Trash2, ArrowLeft, ImageIcon, GripVertical, Palette } from 'lucide-react';
 import { C } from './SketchyUI';
 import { useEdit } from '../context/EditContext';
+import { defaultContent } from '../data/content';
 
 function get(obj: any, path: string): any {
   return path.split('.').reduce((a, k) => a?.[k], obj);
 }
 
-// ── Field — syncs when path changes (fixes stale state bug) ──────────────────
+// ── Field ─────────────────────────────────────────────────────────────────────
 
-function Field({ label, path, multiline = false, rows = 3 }: {
-  label: string; path: string; multiline?: boolean; rows?: number;
+function Field({ label, path, multiline = false, rows = 3, placeholder = '' }: {
+  label: string; path: string; multiline?: boolean; rows?: number; placeholder?: string;
 }) {
   const { content, updateField } = useEdit();
   const value = (get(content, path) as string) ?? '';
   const [local, setLocal] = useState(value);
-
-  // Re-sync when navigating between items (path change = different item)
   useEffect(() => { setLocal((get(content, path) as string) ?? ''); }, [path]);
-
-  function commit() { if (local !== (get(content, path) as string)) updateField(path, local); }
-
+  function commit() { const v = (get(content, path) as string) ?? ''; if (local !== v) updateField(path, local); }
   const base: React.CSSProperties = {
-    backgroundColor: C.void, color: C.cream, border: `1px solid ${C.surface}`,
+    backgroundColor: '#0D0B10', color: '#FDFCFE', border: '1px solid #2A2733',
     fontFamily: 'Sora, sans-serif', fontSize: 12, width: '100%',
-    borderRadius: 8, padding: '7px 10px', outline: 'none', resize: 'vertical' as const,
-    lineHeight: 1.6,
+    borderRadius: 8, padding: '7px 10px', outline: 'none',
+    resize: multiline ? 'vertical' as const : 'none', lineHeight: 1.6,
   };
-
   return (
     <div className="mb-3">
-      <label style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50`, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }} className="block mb-1">
-        {label}
-      </label>
+      {label && <label style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE50', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>{label}</label>}
       {multiline
-        ? <textarea value={local} onChange={e => setLocal(e.target.value)} onBlur={commit} rows={rows} style={base} />
-        : <input type="text" value={local} onChange={e => setLocal(e.target.value)} onBlur={commit} onKeyDown={e => e.key === 'Enter' && commit()} style={base} />
+        ? <textarea value={local} onChange={e => setLocal(e.target.value)} onBlur={commit} rows={rows} style={base} placeholder={placeholder} />
+        : <input type="text" value={local} onChange={e => setLocal(e.target.value)} onBlur={commit} onKeyDown={e => e.key === 'Enter' && commit()} style={base} placeholder={placeholder} />
       }
     </div>
   );
 }
 
-// ── Image field with live preview ─────────────────────────────────────────────
+// ── ImageField ────────────────────────────────────────────────────────────────
 
 function ImageField({ label, path }: { label: string; path: string }) {
   const { content, updateField } = useEdit();
-  const stored = (get(content, path) as string) || '';
-  const [url, setUrl] = useState(stored);
+  const [url, setUrl] = useState((get(content, path) as string) || '');
   const [ok, setOk] = useState(false);
-
   useEffect(() => { setUrl((get(content, path) as string) || ''); }, [path]);
-
   function apply() {
     if (!url) return;
     updateField(path, url);
     setOk(true);
     setTimeout(() => setOk(false), 1500);
   }
-
   return (
     <div className="mb-4">
-      <label style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50`, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }} className="block mb-2">
-        {label}
-      </label>
-      {url && (
-        <img
-          src={url} alt=""
-          onError={e => (e.currentTarget.style.display = 'none')}
-          onLoad={e => (e.currentTarget.style.display = 'block')}
-          className="w-full rounded-xl object-cover mb-2"
-          style={{ height: 100, border: `1px solid ${C.surface}` }}
-        />
-      )}
-      {!url && (
-        <div className="w-full rounded-xl mb-2 flex items-center justify-center" style={{ height: 60, border: `1px dashed ${C.surface}`, backgroundColor: C.void }}>
-          <ImageIcon size={20} color={`${C.cream}20`} />
-        </div>
-      )}
+      {label && <label style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE50', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>{label}</label>}
+      <div className="w-full rounded-xl overflow-hidden mb-2" style={{ height: url ? 90 : 48, border: '1px solid #2A2733', backgroundColor: '#0D0B10', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {url
+          ? <img src={url} alt="" className="w-full h-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+          : <ImageIcon size={18} color="#2A2733" />
+        }
+      </div>
       <div className="flex gap-2">
         <input
-          type="text" value={url}
-          onChange={e => setUrl(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && apply()}
+          type="text" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && apply()}
           placeholder="Paste image URL…"
-          style={{ backgroundColor: C.void, color: C.cream, border: `1px solid ${C.surface}`, fontFamily: 'Sora, sans-serif', fontSize: 11, flex: 1, borderRadius: 8, padding: '6px 9px', outline: 'none' }}
+          style={{ backgroundColor: '#0D0B10', color: '#FDFCFE', border: '1px solid #2A2733', fontFamily: 'Sora, sans-serif', fontSize: 11, flex: 1, borderRadius: 8, padding: '6px 9px', outline: 'none' }}
         />
-        <motion.button
-          onClick={apply} whileTap={{ scale: 0.92 }}
-          style={{ backgroundColor: ok ? C.cyan : C.purple, color: C.void, fontFamily: 'Sora, sans-serif', fontSize: 11, borderRadius: 8, padding: '6px 12px', fontWeight: 900, flexShrink: 0 }}
-        >
-          {ok ? <Check size={12} /> : 'Set'}
+        <motion.button onClick={apply} whileTap={{ scale: 0.9 }}
+          style={{ backgroundColor: ok ? C.cyan : C.purple, color: '#0D0B10', fontFamily: 'Sora, sans-serif', fontSize: 11, borderRadius: 8, padding: '6px 12px', fontWeight: 900, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+          {ok ? <><Check size={11} /> Set</> : 'Set'}
         </motion.button>
       </div>
     </div>
   );
 }
 
-// ── Collapsible section ───────────────────────────────────────────────────────
+// ── Color Picker ──────────────────────────────────────────────────────────────
 
-function Section({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+const PRESET_COLORS = [
+  { label: 'Pink', value: '#FF6B9D' },
+  { label: 'Purple', value: '#9B5CE8' },
+  { label: 'Cyan', value: '#00F5D4' },
+  { label: 'Yellow', value: '#FFE500' },
+  { label: 'Orange', value: '#FF7043' },
+  { label: 'Green', value: '#4CAF7D' },
+  { label: 'Red', value: '#FF4757' },
+  { label: 'Sky', value: '#38BDF8' },
+  { label: 'Rose', value: '#FB7185' },
+  { label: 'Lime', value: '#A3E635' },
+  { label: 'Amber', value: '#FBBF24' },
+  { label: 'Indigo', value: '#818CF8' },
+];
+
+function ColorPicker({ path, label }: { path: string; label: string }) {
+  const { content, updateField } = useEdit();
+  const current = (get(content, path) as string) || '';
+  const [custom, setCustom] = useState(current.startsWith('#') && !PRESET_COLORS.find(p => p.value === current) ? current : '');
+
+  return (
+    <div className="mb-4">
+      <label style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE50', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+        <Palette size={10} /> {label}
+      </label>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {PRESET_COLORS.map(p => (
+          <motion.button
+            key={p.value}
+            onClick={() => updateField(path, p.value)}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            title={p.label}
+            style={{
+              width: 24, height: 24, borderRadius: '50%', backgroundColor: p.value,
+              border: current === p.value ? '2px solid white' : '2px solid transparent',
+              outline: current === p.value ? `2px solid ${p.value}` : 'none',
+              outlineOffset: 2,
+              flexShrink: 0,
+            }}
+          />
+        ))}
+      </div>
+      <div className="flex gap-2 items-center">
+        <div style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: current || '#2A2733', border: '1px solid #2A2733', flexShrink: 0 }} />
+        <input
+          type="text"
+          value={custom}
+          onChange={e => setCustom(e.target.value)}
+          onBlur={() => { if (/^#[0-9A-Fa-f]{6}$/.test(custom)) updateField(path, custom); }}
+          onKeyDown={e => { if (e.key === 'Enter' && /^#[0-9A-Fa-f]{6}$/.test(custom)) updateField(path, custom); }}
+          placeholder="#HEX custom color"
+          style={{ backgroundColor: '#0D0B10', color: '#FDFCFE', border: '1px solid #2A2733', fontFamily: 'Sora, sans-serif', fontSize: 11, flex: 1, borderRadius: 8, padding: '5px 8px', outline: 'none' }}
+        />
+        {current && (
+          <motion.button onClick={() => { updateField(path, ''); setCustom(''); }} whileTap={{ scale: 0.9 }} style={{ color: '#FF666650', fontFamily: 'Sora, sans-serif', fontSize: 10 }}>
+            ✕
+          </motion.button>
+        )}
+      </div>
+      {current && (
+        <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 9, marginTop: 4 }}>
+          Active: {current} · Clears to tag-based default
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Section ───────────────────────────────────────────────────────────────────
+
+function Section({ title, children, defaultOpen = true, accent }: { title: string; children: React.ReactNode; defaultOpen?: boolean; accent?: string }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div style={{ borderBottom: `1px solid ${C.surface}` }} className="py-3 px-4">
+    <div style={{ borderBottom: '1px solid #2A2733' }} className="py-3 px-4">
       <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between mb-1">
-        <span style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5 }}>{title}</span>
-        {open ? <ChevronUp size={12} color={`${C.cream}40`} /> : <ChevronDown size={12} color={`${C.cream}40`} />}
+        <span style={{ fontFamily: 'Sora, sans-serif', color: accent || C.purple, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5 }}>{title}</span>
+        {open ? <ChevronUp size={11} color="#FDFCFE30" /> : <ChevronDown size={11} color="#FDFCFE30" />}
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -119,15 +166,12 @@ function Section({ title, children, defaultOpen = true }: { title: string; child
   );
 }
 
-// ── Add / Remove buttons ──────────────────────────────────────────────────────
+// ── AddBtn / RemoveBtn ────────────────────────────────────────────────────────
 
 function AddBtn({ onClick, label }: { onClick: () => void; label: string }) {
   return (
-    <motion.button
-      onClick={onClick} whileTap={{ scale: 0.95 }}
-      style={{ color: C.cyan, fontFamily: 'Sora, sans-serif', fontSize: 11, fontWeight: 900, border: `1px dashed ${C.cyan}50`, borderRadius: 8, padding: '5px 10px' }}
-      className="flex items-center gap-1.5 my-2"
-    >
+    <motion.button onClick={onClick} whileTap={{ scale: 0.95 }}
+      style={{ color: C.cyan, fontFamily: 'Sora, sans-serif', fontSize: 11, fontWeight: 900, border: `1px dashed ${C.cyan}50`, borderRadius: 8, padding: '5px 10px', display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
       <Plus size={11} /> {label}
     </motion.button>
   );
@@ -135,67 +179,113 @@ function AddBtn({ onClick, label }: { onClick: () => void; label: string }) {
 
 function RemoveBtn({ onClick }: { onClick: () => void }) {
   return (
-    <motion.button
-      onClick={onClick} whileTap={{ scale: 0.9 }} whileHover={{ backgroundColor: '#FF555520' }}
-      style={{ color: '#FF6666', borderRadius: 6, padding: '2px 4px', flexShrink: 0 }}
-    >
+    <motion.button onClick={onClick} whileTap={{ scale: 0.9 }} whileHover={{ backgroundColor: '#FF555520' }}
+      style={{ color: '#FF6666', borderRadius: 6, padding: '3px 5px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
       <Trash2 size={12} />
     </motion.button>
   );
 }
 
-// ── Case Study full editor ────────────────────────────────────────────────────
+// ── Approach step list ────────────────────────────────────────────────────────
+
+function ApproachSteps({ base }: { base: string }) {
+  const { content, updateField } = useEdit();
+  const steps: string[] = get(content, `${base}.approach`) ?? [];
+
+  function updateStep(i: number, val: string) {
+    const next = [...steps];
+    next[i] = val;
+    updateField(`${base}.approach`, next);
+  }
+  function addStep() {
+    updateField(`${base}.approach`, [...steps, '']);
+  }
+  function removeStep(i: number) {
+    updateField(`${base}.approach`, steps.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <div>
+      <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10, marginBottom: 10, lineHeight: 1.5 }}>
+        Each entry becomes a numbered card on the page. Add as many as you need.
+      </p>
+      {steps.map((step, i) => (
+        <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 8, gap: 4, flexShrink: 0 }}>
+            <GripVertical size={12} color="#FDFCFE20" />
+            <span style={{ fontFamily: 'Fraunces, serif', color: C.pink, fontSize: 14, fontWeight: 900, lineHeight: 1 }}>{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <textarea
+              value={step}
+              onChange={e => updateStep(i, e.target.value)}
+              onBlur={() => updateField(`${base}.approach`, steps)}
+              rows={3}
+              style={{ backgroundColor: '#0D0B10', color: '#FDFCFE', border: '1px solid #2A2733', fontFamily: 'Sora, sans-serif', fontSize: 12, width: '100%', borderRadius: 8, padding: '7px 10px', outline: 'none', resize: 'vertical', lineHeight: 1.6 }}
+              placeholder={`Step ${i + 1}…`}
+            />
+          </div>
+          <RemoveBtn onClick={() => removeStep(i)} />
+        </div>
+      ))}
+      <AddBtn onClick={addStep} label="Add Step" />
+    </div>
+  );
+}
+
+// ── Case Study Editor ─────────────────────────────────────────────────────────
 
 function CaseStudyEditor({ index, onBack }: { index: number; onBack: () => void }) {
   const { content, updateField } = useEdit();
   const cs = content.caseStudies[index];
   if (!cs) return null;
-
   const base = `caseStudies.${index}`;
 
-  function addStat() {
-    updateField(`${base}.results.stats`, [...cs.results.stats, { value: '', label: '' }]);
-  }
-  function removeStat(i: number) {
-    updateField(`${base}.results.stats`, cs.results.stats.filter((_, idx) => idx !== i));
-  }
-  function addImage() {
-    updateField(`${base}.projectImages`, [...cs.projectImages, '']);
-  }
-  function removeImage(i: number) {
-    updateField(`${base}.projectImages`, cs.projectImages.filter((_, idx) => idx !== i));
-  }
+  function addStat() { updateField(`${base}.results.stats`, [...cs.results.stats, { value: '', label: '' }]); }
+  function removeStat(i: number) { updateField(`${base}.results.stats`, cs.results.stats.filter((_, idx) => idx !== i)); }
+  function addImage() { updateField(`${base}.projectImages`, [...cs.projectImages, '']); }
+  function removeImage(i: number) { updateField(`${base}.projectImages`, cs.projectImages.filter((_, idx) => idx !== i)); }
+
+  const accentForHeader = (cs as any).accentColor || C.pink;
 
   return (
-    <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
-      {/* Back nav */}
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${C.surface}`, display: 'flex', alignItems: 'center', gap: 8 }} className="shrink-0">
-        <motion.button onClick={onBack} whileHover={{ x: -2 }} style={{ color: `${C.cream}50`, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'Sora, sans-serif', fontSize: 11 }}>
-          <ArrowLeft size={12} /> All Projects
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+      {/* Back + breadcrumb */}
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid #2A2733', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, backgroundColor: `${accentForHeader}10` }}>
+        <motion.button onClick={onBack} whileHover={{ x: -2 }} style={{ color: '#FDFCFE50', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'Sora, sans-serif', fontSize: 11 }}>
+          <ArrowLeft size={12} /> Projects
         </motion.button>
-        <span style={{ color: `${C.cream}20` }}>·</span>
-        <span style={{ fontFamily: 'Sora, sans-serif', color: C.cream, fontSize: 12, fontWeight: 900 }}>{cs.client}</span>
+        <span style={{ color: '#FDFCFE20' }}>·</span>
+        <span style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE', fontSize: 12, fontWeight: 900 }}>{cs.client}</span>
+        {(cs as any).accentColor && (
+          <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: (cs as any).accentColor, marginLeft: 'auto', flexShrink: 0 }} />
+        )}
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <Section title="Identity">
+        <Section title="Brand Color" accent={accentForHeader} defaultOpen>
+          <ColorPicker path={`${base}.accentColor`} label="Accent color for this project" />
+        </Section>
+
+        <Section title="Identity" accent={accentForHeader}>
           <Field label="Client name" path={`${base}.client`} />
           <Field label="Industry" path={`${base}.industry`} />
           <Field label="Year" path={`${base}.year`} />
           <Field label="Timeline" path={`${base}.timeline`} />
-          <Field label="Tagline" path={`${base}.tagline`} />
+          <Field label="Tagline (hero subtitle)" path={`${base}.tagline`} />
           <Field label="Short description (shown in pull-quote card)" path={`${base}.shortDescription`} multiline rows={4} />
         </Section>
 
-        <Section title="Cover Image">
-          <ImageField label="Hero / cover" path={`${base}.coverImage`} />
+        <Section title="Cover Image" accent={accentForHeader}>
+          <ImageField label="" path={`${base}.coverImage`} />
         </Section>
 
-        <Section title="Gallery Images" defaultOpen={false}>
+        <Section title="Gallery Images" accent={accentForHeader} defaultOpen={false}>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10, marginBottom: 10 }}>First image shows full-width. The rest go into a 2-column grid.</p>
           {cs.projectImages.map((_, i) => (
             <div key={i} style={{ marginBottom: 12 }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10 }}>IMAGE {i + 1}{i === 0 ? ' (full-width hero)' : ''}</span>
+              <div className="flex justify-between items-center" style={{ marginBottom: 4 }}>
+                <span style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10 }}>{i === 0 ? 'Image 1 — Full width hero' : `Image ${i + 1}`}</span>
                 <RemoveBtn onClick={() => removeImage(i)} />
               </div>
               <ImageField label="" path={`${base}.projectImages.${i}`} />
@@ -204,29 +294,26 @@ function CaseStudyEditor({ index, onBack }: { index: number; onBack: () => void 
           <AddBtn onClick={addImage} label="Add Image" />
         </Section>
 
-        <Section title="The Challenge">
-          <Field label="Challenge text" path={`${base}.challenge`} multiline rows={7} />
+        <Section title="The Challenge" accent={accentForHeader}>
+          <Field label="" path={`${base}.challenge`} multiline rows={7} placeholder="Describe the problem they came to you with…" />
         </Section>
 
-        <Section title="The Approach">
-          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10, marginBottom: 8 }}>
-            Separate each step with a period + space + capital letter. Each sentence becomes a numbered card.
-          </p>
-          <Field label="Approach text" path={`${base}.approach`} multiline rows={8} />
+        <Section title="The Approach — Steps" accent={accentForHeader}>
+          <ApproachSteps base={base} />
         </Section>
 
-        <Section title="Result Stats">
+        <Section title="Result Stats" accent={accentForHeader}>
           {cs.results.stats.map((stat, i) => (
-            <div key={i} className="flex gap-2 items-start mb-2">
-              <div style={{ width: 90 }}><Field label="Value" path={`${base}.results.stats.${i}.value`} /></div>
-              <div style={{ flex: 1 }}><Field label="Label" path={`${base}.results.stats.${i}.label`} /></div>
-              <div className="mt-6"><RemoveBtn onClick={() => removeStat(i)} /></div>
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}>
+              <div style={{ width: 90 }}><Field label="Value" path={`${base}.results.stats.${i}.value`} placeholder="2×" /></div>
+              <div style={{ flex: 1 }}><Field label="Label" path={`${base}.results.stats.${i}.label`} placeholder="Instagram growth" /></div>
+              <div style={{ marginTop: 20 }}><RemoveBtn onClick={() => removeStat(i)} /></div>
             </div>
           ))}
-          <AddBtn onClick={addStat} label="Add Stat" />
+          <AddBtn onClick={addStat} label="Add Result" />
         </Section>
 
-        <Section title="Testimonial" defaultOpen={false}>
+        <Section title="Testimonial" accent={accentForHeader} defaultOpen={false}>
           <Field label="Quote" path={`${base}.results.testimonial.quote`} multiline rows={4} />
           <Field label="Author name" path={`${base}.results.testimonial.author`} />
           <Field label="Author title" path={`${base}.results.testimonial.title`} />
@@ -238,46 +325,116 @@ function CaseStudyEditor({ index, onBack }: { index: number; onBack: () => void 
   );
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
+// ── Work tab: project picker ──────────────────────────────────────────────────
+
+function WorkTab({ onSelect }: { onSelect: (i: number) => void }) {
+  const { content, updateField } = useEdit();
+
+  function addProject() {
+    const newProject = {
+      ...defaultContent.caseStudies[0],
+      id: String(Date.now()),
+      slug: `new-project-${Date.now()}`,
+      client: 'New Project',
+      tagline: '',
+      shortDescription: '',
+      challenge: '',
+      approach: [''],
+      coverImage: '',
+      projectImages: [],
+      results: { stats: [{ value: '', label: '' }], testimonial: { quote: '', author: '', title: '', company: '', photo: '' } },
+      nextProject: undefined,
+    };
+    const next = [...content.caseStudies, newProject];
+    updateField('caseStudies', next);
+    onSelect(next.length - 1);
+  }
+
+  function removeProject(i: number) {
+    if (!window.confirm(`Remove "${content.caseStudies[i].client}"?`)) return;
+    updateField('caseStudies', content.caseStudies.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ padding: '12px 16px 4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }}>
+          {content.caseStudies.length} Projects
+        </span>
+        <AddBtn onClick={addProject} label="New Project" />
+      </div>
+      {content.caseStudies.map((cs, i) => {
+        const accent = (cs as any).accentColor || C.pink;
+        return (
+          <motion.div
+            key={cs.id}
+            whileHover={{ backgroundColor: '#2A273380' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: '1px solid #2A2733', cursor: 'pointer' }}
+          >
+            <div style={{ width: 48, height: 48, borderRadius: 10, overflow: 'hidden', border: '1px solid #2A2733', flexShrink: 0 }}>
+              {cs.coverImage
+                ? <img src={cs.coverImage} alt={cs.client} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <div style={{ width: '100%', height: '100%', backgroundColor: accent + '20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ImageIcon size={16} color={accent + '60'} />
+                  </div>
+              }
+            </div>
+            <div style={{ flex: 1, overflow: 'hidden' }} onClick={() => onSelect(i)}>
+              <div style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE', fontSize: 13, fontWeight: 900, display: 'flex', alignItems: 'center', gap: 6 }}>
+                {cs.client}
+                {(cs as any).accentColor && <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: (cs as any).accentColor }} />}
+              </div>
+              <div style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE40', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {cs.industry} · {cs.year}
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <motion.button
+                onClick={() => onSelect(i)}
+                whileHover={{ x: 2 }}
+                style={{ color: '#FDFCFE30', padding: '4px' }}
+              >
+                <ChevronDown size={12} style={{ rotate: '-90deg' }} />
+              </motion.button>
+              <RemoveBtn onClick={() => removeProject(i)} />
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Main panel ────────────────────────────────────────────────────────────────
 
 const TABS = ['Home', 'About', 'Work', 'Nav'] as const;
 type Tab = typeof TABS[number];
-
-// ── Main panel ────────────────────────────────────────────────────────────────
 
 export function EditPanel() {
   const { editMode, toggleEditMode, content, updateField, syncStatus } = useEdit();
   const location = useLocation();
 
-  // Auto-switch tab based on current route
-  const routeTab: Tab = (() => {
-    if (location.pathname.startsWith('/work')) return 'Work';
-    if (location.pathname.startsWith('/about')) return 'About';
-    if (location.pathname.startsWith('/contact') || location.pathname.startsWith('/services')) return 'Nav';
-    return 'Home';
-  })();
+  const routeTab: Tab = location.pathname.startsWith('/work') ? 'Work'
+    : location.pathname.startsWith('/about') ? 'About'
+    : (location.pathname.startsWith('/contact') || location.pathname.startsWith('/services')) ? 'Nav'
+    : 'Home';
 
   const [tab, setTab] = useState<Tab>(routeTab);
-
-  // Auto-switch tab when route changes
   useEffect(() => { setTab(routeTab); }, [location.pathname]);
 
-  // Auto-open the right case study when navigating to /work/:slug
   const slugMatch = location.pathname.match(/^\/work\/(.+)$/);
   const activeSlug = slugMatch?.[1] ?? null;
   const activeCSIndex = activeSlug ? content.caseStudies.findIndex(cs => cs.slug === activeSlug) : -1;
-
   const [selectedCS, setSelectedCS] = useState<number | null>(activeCSIndex >= 0 ? activeCSIndex : null);
-
   useEffect(() => {
     if (activeCSIndex >= 0) setSelectedCS(activeCSIndex);
     else setSelectedCS(null);
   }, [activeCSIndex]);
 
-  const syncColor = syncStatus === 'saved' ? C.cyan : syncStatus === 'saving' ? C.yellow : syncStatus === 'error' ? '#FF4444' : `${C.cream}30`;
-  const syncLabel = syncStatus === 'saving' ? '⏳ saving…' : syncStatus === 'saved' ? '✓ saved' : syncStatus === 'error' ? '⚠ error' : '';
+  const syncColor = syncStatus === 'saved' ? C.cyan : syncStatus === 'saving' ? C.yellow : syncStatus === 'error' ? '#FF4444' : '#FDFCFE20';
+  const syncLabel = syncStatus === 'saving' ? 'saving…' : syncStatus === 'saved' ? '✓ saved' : syncStatus === 'error' ? '⚠ error' : '';
 
-  // ── Home helpers
+  // Home helpers
   function addStat() { updateField('home.stats', [...content.home.stats, { value: '', label: '' }]); }
   function removeStat(i: number) { updateField('home.stats', content.home.stats.filter((_, idx) => idx !== i)); }
   function addTestimonial() { updateField('home.testimonials', [...content.home.testimonials, { quote: '', author: '', title: '', company: '', photo: '' }]); }
@@ -285,7 +442,7 @@ export function EditPanel() {
   function addClient() { updateField('home.clients', [...content.home.clients, '']); }
   function removeClient(i: number) { updateField('home.clients', content.home.clients.filter((_, idx) => idx !== i)); }
 
-  // ── About helpers
+  // About helpers
   const quotes = content.about.quotes ?? [];
   function addQuote() { updateField('about.quotes', [...quotes, { text: '', author: '' }]); }
   function removeQuote(i: number) { updateField('about.quotes', quotes.filter((_, idx) => idx !== i)); }
@@ -302,216 +459,164 @@ export function EditPanel() {
           transition={{ type: 'spring', stiffness: 340, damping: 34 }}
           style={{
             position: 'fixed', right: 0, top: 0, bottom: 0, width: 420,
-            backgroundColor: C.cardDark, borderLeft: `1px solid ${C.surface}`,
+            backgroundColor: '#1C1926', borderLeft: '1px solid #2A2733',
             zIndex: 200, display: 'flex', flexDirection: 'column',
-            boxShadow: '-12px 0 48px rgba(0,0,0,0.6)',
+            boxShadow: '-16px 0 60px rgba(0,0,0,0.7)',
           }}
         >
           {/* Header */}
-          <div style={{ borderBottom: `1px solid ${C.surface}`, padding: '14px 16px' }} className="flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
+          <div style={{ borderBottom: '1px solid #2A2733', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: syncStatus === 'saving' ? C.yellow : syncStatus === 'saved' ? C.cyan : syncStatus === 'error' ? '#FF4444' : '#2A2733', transition: 'background-color 0.3s' }} />
               <div>
-                <div style={{ fontFamily: 'Fraunces, serif', color: C.cream, fontSize: 15, fontWeight: 900 }}>Edit Mode</div>
-                <div style={{ fontFamily: 'Sora, sans-serif', color: syncColor, fontSize: 10, minHeight: 14 }}>{syncLabel}</div>
+                <div style={{ fontFamily: 'Fraunces, serif', color: '#FDFCFE', fontSize: 14, fontWeight: 900, letterSpacing: 0.3 }}>Edit Mode</div>
+                <div style={{ fontFamily: 'Sora, sans-serif', color: syncColor, fontSize: 9, textTransform: 'uppercase', letterSpacing: 1 }}>{syncLabel || 'ready'}</div>
               </div>
-              <motion.div
-                animate={{ opacity: syncStatus === 'saving' ? 1 : 0 }}
-                style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: C.yellow }}
-              />
             </div>
-            <button onClick={toggleEditMode} style={{ color: `${C.cream}40` }} className="hover:text-white transition-colors p-1">
+            <button onClick={toggleEditMode} style={{ color: '#FDFCFE30' }} className="hover:text-white transition-colors p-1">
               <X size={16} />
             </button>
           </div>
 
           {/* Tabs */}
-          <div style={{ borderBottom: `1px solid ${C.surface}`, padding: '0 12px', display: 'flex', gap: 2 }} className="shrink-0 pt-2">
+          <div style={{ borderBottom: '1px solid #2A2733', padding: '0 12px', display: 'flex', gap: 2, flexShrink: 0 }} className="pt-2">
             {TABS.map(t => (
-              <button
-                key={t}
-                onClick={() => { setTab(t); if (t !== 'Work') setSelectedCS(null); }}
+              <button key={t} onClick={() => { setTab(t); if (t !== 'Work') setSelectedCS(null); }}
                 style={{
                   fontFamily: 'Sora, sans-serif', fontSize: 10, fontWeight: 900,
-                  color: tab === t ? C.void : `${C.cream}50`,
+                  color: tab === t ? '#0D0B10' : '#FDFCFE50',
                   backgroundColor: tab === t ? C.pink : 'transparent',
-                  padding: '5px 11px', borderRadius: '8px 8px 0 0',
-                  textTransform: 'uppercase', letterSpacing: 0.8,
-                  transition: 'all 0.15s',
-                }}
-              >
-                {t}
-              </button>
+                  padding: '5px 12px', borderRadius: '8px 8px 0 0',
+                  textTransform: 'uppercase', letterSpacing: 0.8, transition: 'all 0.15s',
+                }}>{t}</button>
             ))}
           </div>
 
-          {/* Content area */}
+          {/* Body */}
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
-            {/* ── HOME ── */}
-            {tab === 'Home' && (
-              <>
-                <Section title="Hero">
-                  <Field label="Headline" path="home.heroHeadline" />
-                  <Field label="Subheadline" path="home.heroSub" multiline />
-                </Section>
-
-                <Section title="Stats">
-                  {content.home.stats.map((stat, i) => (
-                    <div key={i} className="flex gap-2 items-start mb-2">
-                      <div style={{ width: 80 }}><Field label="Value" path={`home.stats.${i}.value`} /></div>
-                      <div style={{ flex: 1 }}><Field label="Label" path={`home.stats.${i}.label`} /></div>
-                      <div className="mt-6"><RemoveBtn onClick={() => removeStat(i)} /></div>
-                    </div>
-                  ))}
-                  <AddBtn onClick={addStat} label="Add Stat" />
-                </Section>
-
-                <Section title="About Teaser">
-                  <Field label="Headline" path="home.aboutTeaser" />
-                  <Field label="Body" path="home.aboutTeaserSub" multiline />
-                </Section>
-
-                <Section title="CTA">
-                  <Field label="Headline" path="home.ctaHeadline" />
-                  <Field label="Subtext" path="home.ctaSub" multiline />
-                </Section>
-
-                <Section title="Clients Ticker" defaultOpen={false}>
-                  {content.home.clients.map((c, i) => (
-                    <div key={i} className="flex gap-2 items-center mb-1">
-                      <div style={{ flex: 1 }}><Field label={`Client ${i + 1}`} path={`home.clients.${i}`} /></div>
-                      <RemoveBtn onClick={() => removeClient(i)} />
-                    </div>
-                  ))}
-                  <AddBtn onClick={addClient} label="Add Client" />
-                </Section>
-
-                <Section title="Testimonials" defaultOpen={false}>
-                  {content.home.testimonials.map((t, i) => (
-                    <div key={i} style={{ borderTop: `1px solid ${C.surface}`, paddingTop: 12, marginTop: 4 }}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10 }}>{t.author || `Testimonial ${i + 1}`}</span>
-                        <RemoveBtn onClick={() => removeTestimonial(i)} />
-                      </div>
-                      <Field label="Quote" path={`home.testimonials.${i}.quote`} multiline />
-                      <Field label="Author" path={`home.testimonials.${i}.author`} />
-                      <Field label="Title" path={`home.testimonials.${i}.title`} />
-                      <Field label="Company" path={`home.testimonials.${i}.company`} />
-                      <ImageField label="Photo" path={`home.testimonials.${i}.photo`} />
-                    </div>
-                  ))}
-                  <AddBtn onClick={addTestimonial} label="Add Testimonial" />
-                </Section>
-              </>
-            )}
-
-            {/* ── ABOUT ── */}
-            {tab === 'About' && (
-              <>
-                <Section title="Story Text">
-                  <Field label="Page headline" path="about.headline" />
-                  <Field label="Paragraph 1" path="about.para1" multiline rows={4} />
-                  <Field label="Paragraph 2" path="about.para2" multiline rows={4} />
-                  <Field label="Paragraph 3" path="about.para3" multiline rows={4} />
-                  <Field label="Paragraph 4" path="about.para4" multiline rows={4} />
-                </Section>
-
-                <Section title="Rotating Quotes">
-                  {quotes.map((q, i) => (
-                    <div key={i} style={{ borderTop: `1px solid ${C.surface}`, paddingTop: 10, marginTop: 4 }}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10 }}>Quote {i + 1}</span>
-                        <RemoveBtn onClick={() => removeQuote(i)} />
-                      </div>
-                      <Field label="Text" path={`about.quotes.${i}.text`} multiline rows={3} />
-                      <Field label="Attribution" path={`about.quotes.${i}.author`} />
-                    </div>
-                  ))}
-                  <AddBtn onClick={addQuote} label="Add Quote" />
-                </Section>
-
-                <Section title="Studio Photo">
-                  <ImageField label="Full-width banner image" path="about.studioPhoto" />
-                </Section>
-
-                <Section title="Team" defaultOpen={false}>
-                  {content.about.team.map((m, i) => (
-                    <div key={i} style={{ borderTop: `1px solid ${C.surface}`, paddingTop: 10, marginTop: 4 }}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10 }}>{m.name || `Member ${i + 1}`}</span>
-                        <RemoveBtn onClick={() => removeTeamMember(i)} />
-                      </div>
-                      <Field label="Name" path={`about.team.${i}.name`} />
-                      <Field label="Title" path={`about.team.${i}.title`} />
-                      <Field label="Bio" path={`about.team.${i}.bio`} multiline />
-                      <ImageField label="Photo" path={`about.team.${i}.photo`} />
-                    </div>
-                  ))}
-                  <AddBtn onClick={addTeamMember} label="Add Team Member" />
-                </Section>
-              </>
-            )}
-
-            {/* ── WORK — project picker or drill-down ── */}
-            {tab === 'Work' && selectedCS === null && (
-              <div className="py-3">
-                <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}30`, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, padding: '0 16px 10px' }}>
-                  Select a project to edit
-                </p>
-                {content.caseStudies.map((cs, i) => (
-                  <motion.button
-                    key={cs.id}
-                    onClick={() => setSelectedCS(i)}
-                    whileHover={{ x: 4, backgroundColor: `${C.surface}80` }}
-                    style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: `1px solid ${C.surface}`, textAlign: 'left' }}
-                  >
-                    <div
-                      className="rounded-lg object-cover shrink-0"
-                      style={{ width: 48, height: 48, overflow: 'hidden', border: `1px solid ${C.surface}` }}
-                    >
-                      <img src={cs.coverImage} alt={cs.client} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <div style={{ fontFamily: 'Sora, sans-serif', color: C.cream, fontSize: 13, fontWeight: 900 }}>{cs.client}</div>
-                      <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10 }} className="truncate">{cs.tagline}</div>
-                    </div>
-                    <ChevronDown size={12} color={`${C.cream}30`} style={{ rotate: '-90deg' }} />
-                  </motion.button>
+            {tab === 'Home' && <>
+              <Section title="Hero">
+                <Field label="Headline" path="home.heroHeadline" />
+                <Field label="Subheadline" path="home.heroSub" multiline />
+              </Section>
+              <Section title="Stats">
+                {content.home.stats.map((stat, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6 }}>
+                    <div style={{ width: 80 }}><Field label="Value" path={`home.stats.${i}.value`} placeholder="50+" /></div>
+                    <div style={{ flex: 1 }}><Field label="Label" path={`home.stats.${i}.label`} placeholder="Brands Built" /></div>
+                    <div style={{ marginTop: 20 }}><RemoveBtn onClick={() => removeStat(i)} /></div>
+                  </div>
                 ))}
-              </div>
-            )}
+                <AddBtn onClick={addStat} label="Add Stat" />
+              </Section>
+              <Section title="About Teaser">
+                <Field label="Headline" path="home.aboutTeaser" />
+                <Field label="Body" path="home.aboutTeaserSub" multiline />
+              </Section>
+              <Section title="CTA">
+                <Field label="Headline" path="home.ctaHeadline" />
+                <Field label="Subtext" path="home.ctaSub" multiline />
+              </Section>
+              <Section title="Clients Ticker" defaultOpen={false}>
+                {content.home.clients.map((_, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+                    <div style={{ flex: 1 }}><Field label={`Client ${i + 1}`} path={`home.clients.${i}`} /></div>
+                    <RemoveBtn onClick={() => removeClient(i)} />
+                  </div>
+                ))}
+                <AddBtn onClick={addClient} label="Add Client" />
+              </Section>
+              <Section title="Testimonials" defaultOpen={false}>
+                {content.home.testimonials.map((t, i) => (
+                  <div key={i} style={{ borderTop: '1px solid #2A2733', paddingTop: 12, marginTop: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10 }}>{t.author || `Testimonial ${i + 1}`}</span>
+                      <RemoveBtn onClick={() => removeTestimonial(i)} />
+                    </div>
+                    <Field label="Quote" path={`home.testimonials.${i}.quote`} multiline />
+                    <Field label="Author" path={`home.testimonials.${i}.author`} />
+                    <Field label="Title" path={`home.testimonials.${i}.title`} />
+                    <Field label="Company" path={`home.testimonials.${i}.company`} />
+                    <ImageField label="Photo" path={`home.testimonials.${i}.photo`} />
+                  </div>
+                ))}
+                <AddBtn onClick={addTestimonial} label="Add Testimonial" />
+              </Section>
+            </>}
 
+            {tab === 'About' && <>
+              <Section title="Story Text">
+                <Field label="Page headline" path="about.headline" />
+                <Field label="Paragraph 1" path="about.para1" multiline rows={4} />
+                <Field label="Paragraph 2" path="about.para2" multiline rows={4} />
+                <Field label="Paragraph 3" path="about.para3" multiline rows={4} />
+                <Field label="Paragraph 4" path="about.para4" multiline rows={4} />
+              </Section>
+              <Section title="Rotating Quotes">
+                {quotes.map((q, i) => (
+                  <div key={i} style={{ borderTop: '1px solid #2A2733', paddingTop: 10, marginTop: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <span style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10 }}>Quote {i + 1}</span>
+                      <RemoveBtn onClick={() => removeQuote(i)} />
+                    </div>
+                    <Field label="Text" path={`about.quotes.${i}.text`} multiline rows={3} />
+                    <Field label="Attribution" path={`about.quotes.${i}.author`} />
+                  </div>
+                ))}
+                <AddBtn onClick={addQuote} label="Add Quote" />
+              </Section>
+              <Section title="Studio Photo">
+                <ImageField label="" path="about.studioPhoto" />
+              </Section>
+              <Section title="Team" defaultOpen={false}>
+                {content.about.team.map((m, i) => (
+                  <div key={i} style={{ borderTop: '1px solid #2A2733', paddingTop: 10, marginTop: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <span style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10 }}>{m.name || `Member ${i + 1}`}</span>
+                      <RemoveBtn onClick={() => removeTeamMember(i)} />
+                    </div>
+                    <Field label="Name" path={`about.team.${i}.name`} />
+                    <Field label="Title" path={`about.team.${i}.title`} />
+                    <Field label="Bio" path={`about.team.${i}.bio`} multiline />
+                    <ImageField label="Photo" path={`about.team.${i}.photo`} />
+                  </div>
+                ))}
+                <AddBtn onClick={addTeamMember} label="Add Team Member" />
+              </Section>
+            </>}
+
+            {tab === 'Work' && selectedCS === null && (
+              <WorkTab onSelect={setSelectedCS} />
+            )}
             {tab === 'Work' && selectedCS !== null && (
               <CaseStudyEditor index={selectedCS} onBack={() => setSelectedCS(null)} />
             )}
 
-            {/* ── NAV ── */}
-            {tab === 'Nav' && (
-              <>
-                <Section title="Contact Info">
-                  <Field label="Email" path="nav.email" />
-                  <Field label="Phone" path="nav.phone" />
-                  <Field label="Instagram handle" path="nav.instagram" />
-                  <Field label="Calendly URL" path="nav.calendly" />
-                  <Field label="Footer tagline" path="nav.tagline" multiline />
-                </Section>
-                <Section title="Services" defaultOpen={false}>
-                  {content.services.list.map((s, i) => (
-                    <div key={s.id} style={{ borderTop: `1px solid ${C.surface}`, paddingTop: 10, marginTop: 4 }}>
-                      <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50`, fontSize: 10, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.name}</p>
-                      <Field label="Description" path={`services.list.${i}.description`} multiline />
-                    </div>
-                  ))}
-                </Section>
-              </>
-            )}
+            {tab === 'Nav' && <>
+              <Section title="Contact Info">
+                <Field label="Email" path="nav.email" />
+                <Field label="Phone" path="nav.phone" />
+                <Field label="Instagram handle" path="nav.instagram" />
+                <Field label="Calendly URL" path="nav.calendly" />
+                <Field label="Footer tagline" path="nav.tagline" multiline />
+              </Section>
+              <Section title="Services" defaultOpen={false}>
+                {content.services.list.map((s, i) => (
+                  <div key={s.id} style={{ borderTop: '1px solid #2A2733', paddingTop: 10, marginTop: 4 }}>
+                    <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE40', fontSize: 10, marginBottom: 6, textTransform: 'uppercase' }}>{s.name}</p>
+                    <Field label="Description" path={`services.list.${i}.description`} multiline />
+                  </div>
+                ))}
+              </Section>
+            </>}
 
           </div>
 
-          {/* Footer hint */}
-          <div style={{ borderTop: `1px solid ${C.surface}`, padding: '8px 16px' }} className="shrink-0">
-            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}25`, fontSize: 9, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 }}>
-              Shift + Alt + E to close · Changes auto-save to backend
+          {/* Footer */}
+          <div style={{ borderTop: '1px solid #2A2733', padding: '8px 16px', flexShrink: 0 }}>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE15', fontSize: 9, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 }}>
+              Shift + Alt + E to close · Auto-saves to backend
             </p>
           </div>
         </motion.div>

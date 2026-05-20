@@ -12,7 +12,8 @@ export interface CaseStudy {
   tagline: string;
   shortDescription: string;
   challenge: string;
-  approach: string;
+  approach: string[];
+  accentColor?: string;
   results: {
     stats: { value: string; label: string }[];
     testimonial: {
@@ -333,7 +334,12 @@ export const defaultContent: SiteContent = {
       tagline: "Positioning India's first high-protein rice from zero to recognised brand.",
       shortDescription: "Full brand build, website, and ongoing social strategy for a health food startup disrupting the traditional rice market.",
       challenge: "Real Nutri Co introduced an innovative high-protein rice to a market where rice had been unchanged for decades. Consumers didn't know the category existed, let alone why it mattered. They needed brand presence built from zero — credibility, education, and community, all at once — in a sector that doesn't take new entrants lightly.",
-      approach: "We built the brand around scientific credibility with human warmth — a visual identity in mint green, soft beige, and deep charcoal that communicated health without the cold clinical feel most nutrition brands default to. The website was designed to educate first, convert second: clear product storytelling, nutritionist-backed content, and a social strategy built on balancing education, inspiration, and community. We ran influencer collaborations, A/B-tested email sequences, and used lifestyle photography to make high-protein rice feel aspirational, not functional.",
+      approach: [
+        "Built the brand around scientific credibility with human warmth — a visual identity in mint green, soft beige, and deep charcoal that communicated health without the cold clinical feel most nutrition brands default to.",
+        "Designed the website to educate first, convert second: clear product storytelling, nutritionist-backed content, and a social strategy built on balancing education, inspiration, and community.",
+        "Ran influencer collaborations and A/B-tested email sequences to build reach.",
+        "Used lifestyle photography to make high-protein rice feel aspirational, not functional.",
+      ],
       results: {
         stats: [
           { value: "2×", label: "Instagram engagement growth" },
@@ -368,7 +374,13 @@ export const defaultContent: SiteContent = {
       tagline: "Turning a chemistry-themed café's 365 flavours into a coherent brand universe.",
       shortDescription: "End-to-end brand system, packaging for 365 SKUs, website with online ordering, and ongoing content for Bangalore's most distinctive café.",
       challenge: "Coffee Chemistry serves coffee in beakers and lab glassware and stocks 365 distinct flavours — but their visual identity was completely fragmented. Packaging was inconsistent, social media had inflated bot followers, there was no website or online ordering, and the brand's genuinely brilliant concept wasn't coming through in any touchpoint. They were expanding to a second outlet in Banashankari and needed to show up consistently.",
-      approach: "We built a unified design system from scratch — logo standardisation, spatial graphics, wall art, and a 365-SKU packaging system that still felt coherent at scale. On the digital side: full website with online ordering and payment integration. For content: a social media audit and bot removal followed by a reels-first strategy built around the visual drama of the coffee science concept. We covered two outlet expansions and produced product videography that turned their beaker-serving ritual into shareable content.",
+      approach: [
+        "Built a unified design system from scratch — logo standardisation, spatial graphics, wall art, and a 365-SKU packaging system that still felt coherent at scale.",
+        "Built a full website with online ordering and payment integration.",
+        "Ran a social media audit and bot removal, then launched a reels-first strategy built around the visual drama of the coffee science concept.",
+        "Covered two outlet expansions with brand-consistent creative across every new touchpoint.",
+        "Produced product videography that turned their beaker-serving ritual into shareable content.",
+      ],
       results: {
         stats: [
           { value: "365", label: "SKU packaging system designed" },
@@ -403,7 +415,14 @@ export const defaultContent: SiteContent = {
       tagline: "Taking a handmade terracotta jewellery brand from word-of-mouth to modern heritage brand.",
       shortDescription: "Brand identity, Shopify e-commerce build, and social media strategy for a sustainable artisanal jewellery label with zero prior digital presence.",
       challenge: "TerraBarn made genuinely beautiful handmade terracotta jewellery — but had no online presence, no defined visual identity, products without names, and collections without stories. Sales were entirely word-of-mouth and local markets. They couldn't scale beyond what a single founder could reach in person.",
-      approach: "We treated TerraBarn as a minimalist-luxury brand that happened to be sustainable — not a sustainable brand that happened to be minimal. A natural earthy colour palette (rust, sandy neutrals, muted greens) with serif elegance and clean hierarchy. Named collections gave products memorability. Lifestyle photography made the jewellery feel wearable rather than craft-fair. The Shopify store was built for visual storytelling with frictionless checkout. Social shifted to a consistent grid of texture-rich imagery and sustainability-led reels.",
+      approach: [
+        "Positioned TerraBarn as a minimalist-luxury brand that happened to be sustainable — not a sustainable brand that happened to be minimal.",
+        "Developed a natural earthy colour palette (rust, sandy neutrals, muted greens) with serif elegance and clean hierarchy.",
+        "Named collections gave products memorability and retail presence without a store.",
+        "Lifestyle photography made the jewellery feel wearable rather than craft-fair.",
+        "Built the Shopify store for visual storytelling with frictionless checkout.",
+        "Shifted social to a consistent grid of texture-rich imagery and sustainability-led reels.",
+      ],
       results: {
         stats: [
           { value: "Zero → Online", label: "Digital storefront launched" },
@@ -438,7 +457,13 @@ export const defaultContent: SiteContent = {
       tagline: "Reframing a dog juice brand as a whole-lifestyle dog wellness platform.",
       shortDescription: "Brand strategy and social content for a pet wellness brand — built around purpose, not product.",
       challenge: "Barky Brews had an interesting product — a health drink for dogs — but the real challenge was that 'dog juice' is a novelty. Leading with the product risked the brand staying a gimmick. The founders needed to figure out what the brand actually stood for before any creative decisions could be made.",
-      approach: "We rejected feature-led marketing entirely. Instead, we asked: what does it actually mean to take care of a dog long-term? That question became the brand foundation. We identified that most pet wellness brands rely on clinical language or generic cute content — missing the emotional depth that dog owners actually feel. The strategy: dog-first content covering gut health, physical wellness, emotional wellbeing, and longevity. Voice: calm, playful without gimmicks, never preachy. Execution: cartoon-style social content, a care-philosophy website, and positioning the product as one part of a bigger wellness story.",
+      approach: [
+        "Rejected feature-led marketing entirely — asked instead: what does it actually mean to take care of a dog long-term?",
+        "Identified that most pet wellness brands rely on clinical language or generic cute content, missing the emotional depth dog owners actually feel.",
+        "Built a brand strategy around dog-first content covering gut health, physical wellness, emotional wellbeing, and longevity.",
+        "Established a voice: calm, playful without gimmicks, never preachy.",
+        "Executed through cartoon-style social content, a care-philosophy website, and product positioning as one part of a bigger wellness story.",
+      ],
       results: {
         stats: [
           { value: "Purpose-led", label: "Brand strategy defined" },
@@ -473,7 +498,12 @@ export const defaultContent: SiteContent = {
       tagline: "A rural education non-profit website that finally matches the scale of their mission.",
       shortDescription: "Full website redesign, content strategy, and custom illustrations for a non-profit transforming rural education across India.",
       challenge: "Yugen Education Foundation was doing critical, high-impact work transforming rural education in India — but their digital presence told a different story. Outdated design, fragmented content, and no distinct visual identity made it hard for corporate donors and institutional partners to understand the scope of what Yugen was building. The gap between the organisation's impact and its online presence was costing them credibility with exactly the people they needed to reach.",
-      approach: "We restructured the information architecture to answer the questions donors and partners actually ask: what do you do, who does it affect, and how do I get involved. Custom human-centred illustrations were created to reflect the grassroots community Yugen serves — warm, vibrant, and distinctly not stock-photo. Content strategy and copywriting ran alongside design, so every word earned its place. The build was optimised for speed and accessibility, because the audience was broad and the device range was wide.",
+      approach: [
+        "Restructured the information architecture to answer the questions donors and partners actually ask: what do you do, who does it affect, and how do I get involved.",
+        "Created custom human-centred illustrations to reflect the grassroots community Yugen serves — warm, vibrant, and distinctly not stock-photo.",
+        "Ran content strategy and copywriting alongside design, so every word earned its place.",
+        "Optimised the build for speed and accessibility, because the audience was broad and the device range was wide.",
+      ],
       results: {
         stats: [
           { value: "Launched", label: "yugeneducation.in on time" },
@@ -508,7 +538,12 @@ export const defaultContent: SiteContent = {
       tagline: "Giving an animal welfare organisation the brand presence their mission deserves.",
       shortDescription: "Brand identity, design system, social strategy, and website for a founder-led animal rights organisation with zero prior digital infrastructure.",
       challenge: "Ground Animal Welfare was doing important, consistent work — but their communication was visually fragmented, they had no website, and their social content leaned heavily on emotionally-charged imagery rather than the education-led narrative that builds long-term community. They needed everything built from scratch: identity, website, content framework, and a social strategy that could run without the founder having to think about it.",
-      approach: "We established a design system anchored in natural colour palettes and accessible typography that communicated the cause without guilt-tripping. The content framework shifted from shock-value to sustained education — themed storytelling around sustainability, adoption journeys, and plant-based living. Reels, carousels, and educational posts built an audience that actually engaged. The website (ground-animalwelfare.org) launched with mission clarity, a project gallery, and partnership opportunities built in from day one.",
+      approach: [
+        "Established a design system in natural colour palettes and accessible typography that communicated the cause without guilt-tripping.",
+        "Shifted the content framework from shock-value imagery to sustained education — themed storytelling around sustainability, adoption journeys, and plant-based living.",
+        "Built reels, carousels, and educational posts that grew an audience that actually engaged.",
+        "Launched the website (ground-animalwelfare.org) with mission clarity, a project gallery, and partnership opportunities built in from day one.",
+      ],
       results: {
         stats: [
           { value: "Live", label: "ground-animalwelfare.org launched" },

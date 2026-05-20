@@ -37,10 +37,28 @@ function deepMerge(base: SiteContent, remote: Partial<SiteContent>): SiteContent
     ...remote,
     nav: { ...base.nav, ...remote.nav },
     home: { ...base.home, ...remote.home },
-    about: { ...base.about, ...remote.about },
+    about: {
+      ...base.about,
+      ...remote.about,
+      team: remote.about?.team ?? base.about.team,
+      values: remote.about?.values ?? base.about.values,
+      quotes: remote.about?.quotes ?? base.about.quotes,
+    },
     services: remote.services ?? base.services,
     caseStudies: remote.caseStudies ?? base.caseStudies,
     articles: remote.articles ?? base.articles,
+  };
+}
+
+function migrateContent(content: SiteContent): SiteContent {
+  return {
+    ...content,
+    caseStudies: content.caseStudies.map(cs => ({
+      ...cs,
+      approach: typeof cs.approach === 'string'
+        ? (cs.approach as string).split(/(?<=\.)\s+(?=[A-Z])/).filter(Boolean)
+        : cs.approach,
+    })),
   };
 }
 
@@ -56,7 +74,7 @@ export function EditProvider({ children }: { children: React.ReactNode }) {
   const [content, setContent] = useState<SiteContent>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return deepMerge(defaultContent, JSON.parse(stored));
+      if (stored) return migrateContent(deepMerge(defaultContent, JSON.parse(stored)));
     } catch {}
     return defaultContent;
   });
@@ -66,7 +84,7 @@ export function EditProvider({ children }: { children: React.ReactNode }) {
     if (!backend) { setBackendReady(true); return; }
     backend.load().then(data => {
       if (data && Object.keys(data).length > 0) {
-        const merged = deepMerge(defaultContent, data as Partial<SiteContent>);
+        const merged = migrateContent(deepMerge(defaultContent, data as Partial<SiteContent>));
         setContent(merged);
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch {}
       }
