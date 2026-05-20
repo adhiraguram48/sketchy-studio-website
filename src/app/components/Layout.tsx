@@ -153,7 +153,7 @@ export function EditKeyListener() {
   const { toggleEditMode } = useEdit();
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'e') toggleEditMode();
+      if (e.shiftKey && e.altKey && e.code === 'KeyE') toggleEditMode();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

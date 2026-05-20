@@ -1,18 +1,27 @@
 import { useParams, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Calendar, Clock, Tag, Building2, Pencil, Save, X } from 'lucide-react';
-import { useState } from 'react';
-import { C, FloatingOrbs, Squiggle, SectionLabel, Reveal, Callout, AnimatedNumber, NoiseOverlay } from '../components/SketchyUI';
+import { ArrowLeft, ArrowRight, Calendar, Clock, Tag, Building2 } from 'lucide-react';
+import { C, FloatingOrbs, Squiggle, SectionLabel, Reveal, CountUp, NoiseOverlay } from '../components/SketchyUI';
 import { useEdit } from '../context/EditContext';
 import { PageLayout } from '../components/Layout';
-import { CaseStudy as CaseStudyType } from '../data/content';
+
+// Unique accent color per tag category
+function accentColor(tags: string[]): string {
+  if (tags.includes('Motion')) return C.cyan;
+  if (tags.includes('Social')) return C.purple;
+  if (tags.includes('Web')) return C.yellow;
+  return C.pink;
+}
+
+// Split approach text into paragraphs for step-by-step display
+function parseApproach(text: string): string[] {
+  return text.split(/(?<=\.)\s+(?=[A-Z])/).filter(Boolean);
+}
 
 export default function CaseStudy() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { content, editMode, updateField } = useEdit();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<CaseStudyType>>({});
+  const { content } = useEdit();
 
   const project = content.caseStudies.find(cs => cs.slug === slug);
   const projectIndex = content.caseStudies.findIndex(cs => cs.slug === slug);
@@ -25,329 +34,282 @@ export default function CaseStudy() {
       <PageLayout>
         <div style={{ backgroundColor: C.void, minHeight: '100vh', paddingTop: 120 }} className="flex items-center justify-center">
           <div className="text-center">
-            <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-4xl font-black mb-4">
-              Project not found.
-            </h1>
-            <button onClick={() => navigate('/work')} style={{ color: C.pink, fontFamily: 'Sora, sans-serif' }} className="font-black">
-              ← Back to Work
-            </button>
+            <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-4xl font-black mb-4">Project not found.</h1>
+            <button onClick={() => navigate('/work')} style={{ color: C.pink, fontFamily: 'Sora, sans-serif' }} className="font-black">← Back to Work</button>
           </div>
         </div>
       </PageLayout>
     );
   }
 
-  function startEdit() {
-    setEditData({ ...project });
-    setIsEditing(true);
-  }
-
-  function saveEdit() {
-    const updated = content.caseStudies.map(cs =>
-      cs.slug === slug ? { ...cs, ...editData } : cs
-    );
-    updateField('caseStudies', updated as any);
-    setIsEditing(false);
-  }
-
-  const displayProject = isEditing ? { ...project, ...editData } : project;
+  const accent = accentColor(project.tags);
+  const approachSteps = parseApproach(project.approach);
 
   return (
     <PageLayout>
-      {/* Edit panel */}
-      {editMode && !isEditing && (
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          onClick={startEdit}
-          style={{ position: 'fixed', top: 80, right: 24, backgroundColor: C.purple, color: C.cream, fontFamily: 'Sora, sans-serif', zIndex: 40 }}
-          className="px-4 py-2 rounded-full text-sm font-black flex items-center gap-2 shadow-xl"
-        >
-          <Pencil size={14} /> Edit Case Study
-        </motion.button>
-      )}
 
-      {/* Edit Modal */}
-      {isEditing && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 overflow-y-auto"
-          style={{ backgroundColor: `${C.void}F0`, backdropFilter: 'blur(12px)' }}
-        >
-          <div className="max-w-2xl mx-auto p-6 pt-20">
-            <div className="flex items-center justify-between mb-6">
-              <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-2xl font-black">
-                Edit Case Study
-              </h2>
-              <button onClick={() => setIsEditing(false)} style={{ color: `${C.cream}80` }}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {[
-                { label: 'Client Name', key: 'client' },
-                { label: 'Industry', key: 'industry' },
-                { label: 'Year', key: 'year' },
-                { label: 'Timeline', key: 'timeline' },
-                { label: 'Tagline', key: 'tagline' },
-                { label: 'Cover Image URL', key: 'coverImage' },
-              ].map(({ label, key }) => (
-                <div key={key}>
-                  <label style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-xs uppercase tracking-wide block mb-1">
-                    {label}
-                  </label>
-                  <input
-                    value={(editData as any)[key] || ''}
-                    onChange={e => setEditData({ ...editData, [key]: e.target.value })}
-                    style={{
-                      backgroundColor: C.cardDark,
-                      color: C.cream,
-                      borderColor: C.surface,
-                      fontFamily: 'Sora, sans-serif',
-                    }}
-                    className="w-full px-4 py-2 rounded-xl border-2 text-sm outline-none focus:border-purple-500"
-                  />
-                </div>
-              ))}
-
-              {[
-                { label: 'The Challenge', key: 'challenge' },
-                { label: 'The Approach', key: 'approach' },
-              ].map(({ label, key }) => (
-                <div key={key}>
-                  <label style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-xs uppercase tracking-wide block mb-1">
-                    {label}
-                  </label>
-                  <textarea
-                    value={(editData as any)[key] || ''}
-                    onChange={e => setEditData({ ...editData, [key]: e.target.value })}
-                    rows={4}
-                    style={{
-                      backgroundColor: C.cardDark,
-                      color: C.cream,
-                      borderColor: C.surface,
-                      fontFamily: 'Sora, sans-serif',
-                    }}
-                    className="w-full px-4 py-2 rounded-xl border-2 text-sm outline-none focus:border-purple-500 resize-none"
-                  />
-                </div>
-              ))}
-
-              {/* Tags */}
-              <div>
-                <label style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-xs uppercase tracking-wide block mb-1">
-                  Tags (comma separated)
-                </label>
-                <input
-                  value={(editData.tags || []).join(', ')}
-                  onChange={e => setEditData({ ...editData, tags: e.target.value.split(',').map(t => t.trim()) })}
-                  style={{ backgroundColor: C.cardDark, color: C.cream, borderColor: C.surface, fontFamily: 'Sora, sans-serif' }}
-                  className="w-full px-4 py-2 rounded-xl border-2 text-sm outline-none"
-                />
-              </div>
-
-              {/* Project images */}
-              <div>
-                <label style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-xs uppercase tracking-wide block mb-1">
-                  Project Images (one URL per line)
-                </label>
-                <textarea
-                  value={(editData.projectImages || []).join('\n')}
-                  onChange={e => setEditData({ ...editData, projectImages: e.target.value.split('\n').filter(Boolean) })}
-                  rows={3}
-                  style={{ backgroundColor: C.cardDark, color: C.cream, borderColor: C.surface, fontFamily: 'Sora, sans-serif' }}
-                  className="w-full px-4 py-2 rounded-xl border-2 text-sm outline-none resize-none"
-                />
-              </div>
-
-              <motion.button
-                onClick={saveEdit}
-                whileHover={{ scale: 1.02 }}
-                style={{ backgroundColor: C.cyan, color: C.void, fontFamily: 'Sora, sans-serif' }}
-                className="py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2"
-              >
-                <Save size={16} /> Save Changes
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Hero */}
-      <section style={{ backgroundColor: C.void, minHeight: '70vh', paddingTop: 0 }} className="relative overflow-hidden flex items-end">
+      {/* ── HERO ─────────────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: C.void, minHeight: '80vh' }} className="relative overflow-hidden flex items-end">
         <div className="absolute inset-0">
-          <img
-            src={displayProject.coverImage}
-            alt={displayProject.client}
+          <motion.img
+            src={project.coverImage}
+            alt={project.client}
             className="w-full h-full object-cover"
+            initial={{ scale: 1.06 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 1.4, ease: [0.25, 0.1, 0.25, 1] }}
           />
-          <div style={{ background: `linear-gradient(to top, ${C.void} 30%, ${C.void}80 60%, transparent 100%)` }} className="absolute inset-0" />
+          <div style={{ background: `linear-gradient(to top, ${C.void} 35%, ${C.void}90 55%, transparent 100%)` }} className="absolute inset-0" />
+          <div style={{ background: `linear-gradient(to right, ${accent}18 0%, transparent 60%)` }} className="absolute inset-0" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pb-16 pt-32 w-full">
+        <NoiseOverlay />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pb-16 pt-40 w-full">
           <motion.button
             onClick={() => navigate('/work')}
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
             whileHover={{ x: -4 }}
-            style={{ color: `${C.cream}80`, fontFamily: 'Sora, sans-serif' }}
+            style={{ color: `${C.cream}70`, fontFamily: 'Sora, sans-serif' }}
             className="text-sm flex items-center gap-2 mb-8"
           >
-            <ArrowLeft size={16} /> All Work
+            <ArrowLeft size={14} /> All Work
           </motion.button>
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            {displayProject.tags.map(tag => (
-              <span
+          <div className="flex flex-wrap gap-2 mb-5">
+            {project.tags.map(tag => (
+              <motion.span
                 key={tag}
-                style={{ backgroundColor: `${C.pink}30`, color: C.pink, fontFamily: 'Sora, sans-serif' }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                style={{ backgroundColor: `${accent}25`, color: accent, fontFamily: 'Sora, sans-serif', border: `1px solid ${accent}50` }}
                 className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide"
               >
                 {tag}
-              </span>
+              </motion.span>
             ))}
           </div>
 
-          <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.95, fontSize: 'clamp(2.5rem, 7vw, 5rem)' }} className="font-black mb-4">
-            {displayProject.client}
-          </h1>
-          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80`, fontSize: '1.125rem' }}>
-            {displayProject.tagline}
-          </p>
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.7 }}
+            style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.92, fontSize: 'clamp(2.8rem, 8vw, 5.5rem)' }}
+            className="font-black mb-4"
+          >
+            {project.client}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80`, fontSize: '1.125rem', maxWidth: 600 }}
+          >
+            {project.tagline}
+          </motion.p>
         </div>
       </section>
 
-      {/* Project info bar */}
+      {/* ── PROJECT META BAR ─────────────────────────────────────────── */}
       <section style={{ backgroundColor: C.cardDark, borderBottom: `1px solid ${C.surface}` }}>
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {[
-              { icon: Building2, label: 'Client', value: displayProject.client },
-              { icon: Tag, label: 'Industry', value: displayProject.industry },
-              { icon: Tag, label: 'Services', value: displayProject.services.join(', ') },
-              { icon: Calendar, label: 'Year', value: displayProject.year },
-              { icon: Clock, label: 'Timeline', value: displayProject.timeline },
-            ].map(({ icon: Icon, label, value }) => (
+              { Icon: Building2, label: 'Client', value: project.client },
+              { Icon: Tag, label: 'Industry', value: project.industry },
+              { Icon: Tag, label: 'Services', value: project.services.join(' · ') },
+              { Icon: Calendar, label: 'Year', value: project.year },
+              { Icon: Clock, label: 'Timeline', value: project.timeline },
+            ].map(({ Icon, label, value }) => (
               <div key={label}>
-                <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50` }} className="text-xs uppercase tracking-wide mb-1 flex items-center gap-1">
-                  <Icon size={10} /> {label}
+                <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40` }} className="text-xs uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <Icon size={9} /> {label}
                 </div>
-                <div style={{ fontFamily: 'Sora, sans-serif', color: C.cream }} className="text-sm font-black">
-                  {value}
-                </div>
+                <div style={{ fontFamily: 'Sora, sans-serif', color: C.cream }} className="text-sm font-black">{value}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Challenge */}
-      <section style={{ backgroundColor: C.void }} className="py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <SectionLabel text="The Challenge" color={C.pink} />
-            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1 }} className="text-4xl font-black mt-3 mb-4">
-              Where they were.
-            </h2>
-            <Squiggle color={C.pink} width={140} />
-            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}CC`, lineHeight: 1.8, fontSize: '1.125rem' }} className="mt-6">
-              {displayProject.challenge}
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Approach */}
-      <section style={{ backgroundColor: C.cardDark }} className="py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <Reveal>
-            <SectionLabel text="The Approach" color={C.cyan} rotate={1} />
-            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1 }} className="text-4xl font-black mt-3 mb-4">
-              What we did.
-            </h2>
-            <Squiggle color={C.cyan} width={140} />
-            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}CC`, lineHeight: 1.8, fontSize: '1.125rem' }} className="mt-6">
-              {displayProject.approach}
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Gallery */}
-      <section style={{ backgroundColor: C.void }} className="py-20">
+      {/* ── THE CHALLENGE ────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: C.void }} className="py-24">
         <div className="max-w-7xl mx-auto px-6">
-          <Reveal className="mb-10">
-            <SectionLabel text="The Work" color={C.yellow} />
-            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1 }} className="text-4xl font-black mt-3">
-              The output.
-            </h2>
-            <Squiggle color={C.yellow} width={120} />
-          </Reveal>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <Reveal>
+              <SectionLabel text="The Challenge" color={accent} />
+              <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.95, fontSize: 'clamp(2rem, 4vw, 3rem)' }} className="font-black mt-4 mb-4">
+                Where they were.
+              </h2>
+              <Squiggle color={accent} width={120} />
+              <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}CC`, lineHeight: 1.85, fontSize: '1.05rem' }} className="mt-6">
+                {project.challenge}
+              </p>
+            </Reveal>
 
-          <div className="flex flex-col gap-4">
-            {displayProject.projectImages.map((img, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  className="overflow-hidden rounded-2xl"
-                  style={{ height: i === 0 ? 560 : 320 }}
-                >
-                  <img src={img} alt={`${displayProject.client} project ${i + 1}`} className="w-full h-full object-cover" />
-                </motion.div>
-              </Reveal>
-            ))}
-
-            {editMode && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                onClick={() => {
-                  const url = window.prompt('Enter image URL:');
-                  if (url) {
-                    const updated = content.caseStudies.map(cs =>
-                      cs.slug === slug
-                        ? { ...cs, projectImages: [...cs.projectImages, url] }
-                        : cs
-                    );
-                    updateField('caseStudies', updated as any);
-                  }
+            {/* Pull quote */}
+            <Reveal delay={0.15}>
+              <motion.div
+                whileHover={{ rotate: 0, scale: 1.02 }}
+                style={{
+                  backgroundColor: `${accent}12`,
+                  border: `2px solid ${accent}40`,
+                  rotate: '-1.5deg',
+                  borderRadius: 24,
+                  padding: 32,
+                  marginTop: 48,
                 }}
-                style={{ borderColor: C.surface, color: `${C.cream}60`, fontFamily: 'Sora, sans-serif' }}
-                className="border-2 border-dashed rounded-2xl py-8 text-sm font-black flex items-center justify-center gap-2"
               >
-                + Add Image
-              </motion.button>
-            )}
+                <div style={{ color: accent, fontSize: 64, lineHeight: 1, fontFamily: 'Fraunces, serif', opacity: 0.5 }}>"</div>
+                <p style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1.4, fontSize: '1.25rem' }} className="font-black -mt-4">
+                  {project.shortDescription}
+                </p>
+                <div style={{ marginTop: 20, paddingTop: 16, borderTop: `1px solid ${accent}30` }}>
+                  <div style={{ fontFamily: 'Sora, sans-serif', color: accent, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    {project.industry}
+                  </div>
+                </div>
+              </motion.div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Results */}
-      <section style={{ backgroundColor: C.cardDark }} className="py-20 relative overflow-hidden">
-        <FloatingOrbs dark />
+      {/* ── THE APPROACH ─────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: C.cream }} className="py-24 relative overflow-hidden">
+        <div style={{ background: `linear-gradient(135deg, ${accent}08 0%, transparent 60%)` }} className="absolute inset-0" />
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <Reveal className="mb-12">
-            <SectionLabel text="The Results" color={C.purple} rotate={-1} />
-            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1 }} className="text-4xl font-black mt-3">
-              The numbers.
+          <Reveal className="mb-14">
+            <SectionLabel text="The Approach" color={C.void} rotate={1} />
+            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.void, lineHeight: 0.95, fontSize: 'clamp(2rem, 4vw, 3rem)' }} className="font-black mt-4 mb-3">
+              What we did.
             </h2>
-            <Squiggle color={C.purple} width={120} />
+            <Squiggle color={C.void} width={120} />
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {displayProject.results.stats.map((stat, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {approachSteps.map((step, i) => (
+              <Reveal key={i} delay={i * 0.07}>
+                <motion.div
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  style={{
+                    backgroundColor: C.void,
+                    border: `2px solid ${C.surface}`,
+                    borderRadius: 20,
+                    padding: 24,
+                  }}
+                >
+                  <div style={{
+                    fontFamily: 'Fraunces, serif',
+                    color: accent,
+                    fontSize: 36,
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    marginBottom: 12,
+                    opacity: 0.7,
+                  }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}CC`, lineHeight: 1.75, fontSize: '0.9rem' }}>
+                    {step}
+                  </p>
+                </motion.div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── GALLERY ──────────────────────────────────────────────────── */}
+      {project.projectImages.length > 0 && (
+        <section style={{ backgroundColor: C.void }} className="py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <Reveal className="mb-10">
+              <SectionLabel text="The Work" color={accent} />
+              <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.95 }} className="text-4xl font-black mt-3">
+                The output.
+              </h2>
+              <Squiggle color={accent} width={120} />
+            </Reveal>
+
+            {/* First image: full width */}
+            {project.projectImages[0] && (
+              <Reveal className="mb-4">
+                <motion.div
+                  whileHover={{ scale: 1.005 }}
+                  className="overflow-hidden rounded-2xl"
+                  style={{ height: 'clamp(300px, 55vw, 600px)' }}
+                >
+                  <motion.img
+                    src={project.projectImages[0]}
+                    alt={`${project.client} 1`}
+                    className="w-full h-full object-cover"
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.6 }}
+                  />
+                </motion.div>
+              </Reveal>
+            )}
+
+            {/* Rest: 2-column grid */}
+            {project.projectImages.length > 1 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {project.projectImages.slice(1).map((img, i) => (
+                  <Reveal key={i} delay={i * 0.08}>
+                    <motion.div
+                      whileHover={{ scale: 1.01 }}
+                      className="overflow-hidden rounded-2xl"
+                      style={{ height: 300 }}
+                    >
+                      <motion.img
+                        src={img}
+                        alt={`${project.client} ${i + 2}`}
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.5 }}
+                      />
+                    </motion.div>
+                  </Reveal>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ── RESULTS ──────────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: C.cardDark }} className="py-24 relative overflow-hidden">
+        <FloatingOrbs dark />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <Reveal className="mb-14 text-center">
+            <SectionLabel text="The Results" color={accent} rotate={-1} />
+            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.95 }} className="text-5xl font-black mt-3">
+              The numbers.
+            </h2>
+            <Squiggle color={accent} width={120} className="mx-auto mt-2" />
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            {project.results.stats.map((stat, i) => (
               <Reveal key={i} delay={i * 0.1}>
                 <motion.div
-                  whileHover={{ scale: 1.05, rotate: 0 }}
+                  whileHover={{ scale: 1.04, rotate: 0 }}
                   style={{
-                    backgroundColor: C.surface,
+                    background: `linear-gradient(135deg, ${C.surface} 0%, ${C.cardDark} 100%)`,
+                    border: `2px solid ${accent}60`,
                     rotate: `${i % 2 === 0 ? -1 : 1}deg`,
-                    borderColor: [C.pink, C.yellow, C.cyan][i % 3],
+                    borderRadius: 24,
+                    padding: 40,
+                    textAlign: 'center',
                   }}
-                  className="border-2 rounded-2xl p-8 text-center"
                 >
-                  <div style={{ fontFamily: 'Fraunces, Georgia, serif', color: [C.pink, C.yellow, C.cyan][i % 3] }} className="text-5xl font-black mb-2">
-                    <AnimatedNumber value={stat.value} />
+                  <div style={{ fontFamily: 'Fraunces, Georgia, serif', color: accent, lineHeight: 1 }} className="text-6xl font-black mb-3">
+                    <CountUp value={stat.value} />
                   </div>
-                  <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm uppercase tracking-wide">
+                  <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}70`, fontSize: 13 }} className="uppercase tracking-widest">
                     {stat.label}
                   </div>
                 </motion.div>
@@ -357,82 +319,101 @@ export default function CaseStudy() {
 
           {/* Testimonial */}
           <Reveal>
-            <Callout color={C.purple} rotate={-1} className="max-w-3xl mx-auto">
-              <p style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1.5, fontSize: '1.25rem' }} className="italic mb-6">
-                "{displayProject.results.testimonial.quote}"
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              style={{
+                background: `linear-gradient(135deg, ${accent}15 0%, ${C.surface} 100%)`,
+                border: `2px solid ${accent}30`,
+                borderRadius: 24,
+                padding: 48,
+                maxWidth: 760,
+                margin: '0 auto',
+              }}
+            >
+              <div style={{ color: accent, fontSize: 72, lineHeight: 0.8, fontFamily: 'Fraunces, serif', opacity: 0.4, marginBottom: 8 }}>"</div>
+              <p style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 1.5, fontSize: 'clamp(1.1rem, 2vw, 1.35rem)' }} className="italic mb-8">
+                {project.results.testimonial.quote}
               </p>
-              <div className="flex items-center gap-3">
-                {displayProject.results.testimonial.photo && (
+              <div className="flex items-center gap-4" style={{ borderTop: `1px solid ${accent}25`, paddingTop: 20 }}>
+                {project.results.testimonial.photo && (
                   <img
-                    src={displayProject.results.testimonial.photo}
-                    alt={displayProject.results.testimonial.author}
-                    className="w-12 h-12 rounded-full object-cover"
+                    src={project.results.testimonial.photo}
+                    alt={project.results.testimonial.author}
+                    className="w-14 h-14 rounded-full object-cover"
+                    style={{ border: `2px solid ${accent}50` }}
                   />
                 )}
                 <div>
-                  <div style={{ fontFamily: 'Sora, sans-serif', color: C.cream }} className="font-black text-sm">
-                    {displayProject.results.testimonial.author}
+                  <div style={{ fontFamily: 'Sora, sans-serif', color: C.cream, fontWeight: 900 }} className="text-sm">
+                    {project.results.testimonial.author}
                   </div>
                   <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}60` }} className="text-xs">
-                    {displayProject.results.testimonial.title}, {displayProject.results.testimonial.company}
+                    {project.results.testimonial.title}, {project.results.testimonial.company}
                   </div>
                 </div>
               </div>
-            </Callout>
+            </motion.div>
           </Reveal>
         </div>
       </section>
 
-      {/* Next project */}
+      {/* ── NEXT PROJECT ─────────────────────────────────────────────── */}
       {nextProject && (
-        <section
+        <motion.section
           onClick={() => navigate(`/work/${nextProject.slug}`)}
-          style={{ cursor: 'pointer' }}
-          className="relative overflow-hidden"
+          whileHover="hover"
+          style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden', height: 360 }}
         >
-          <div style={{ height: 320 }} className="relative">
-            <img src={nextProject.coverImage} alt={nextProject.client} className="w-full h-full object-cover" />
-            <div style={{ background: `linear-gradient(to right, ${C.void}E0 40%, ${C.void}60 100%)` }} className="absolute inset-0" />
-            <div className="absolute inset-0 flex items-center">
-              <div className="max-w-7xl mx-auto px-6 w-full">
-                <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}60` }} className="text-sm uppercase tracking-widest mb-2">
-                  Next Project
-                </p>
-                <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream }} className="text-4xl font-black mb-3">
-                  {nextProject.client}
-                </h2>
-                <motion.span
-                  whileHover={{ x: 8 }}
-                  style={{ color: C.pink, fontFamily: 'Sora, sans-serif' }}
-                  className="font-black flex items-center gap-2"
-                >
-                  View Project <ArrowRight size={16} />
-                </motion.span>
-              </div>
+          <motion.img
+            src={nextProject.coverImage}
+            alt={nextProject.client}
+            className="w-full h-full object-cover"
+            variants={{ hover: { scale: 1.04 } }}
+            transition={{ duration: 0.6 }}
+          />
+          <div style={{ background: `linear-gradient(to right, ${C.void}F0 35%, ${C.void}60 100%)` }} className="absolute inset-0" />
+          <div className="absolute inset-0 flex items-center">
+            <div className="max-w-7xl mx-auto px-6 w-full">
+              <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50`, fontSize: 11 }} className="uppercase tracking-widest mb-3">
+                Next Project
+              </p>
+              <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.95 }} className="text-5xl font-black mb-4">
+                {nextProject.client}
+              </h2>
+              <motion.span
+                variants={{ hover: { x: 10 } }}
+                style={{ color: accent, fontFamily: 'Sora, sans-serif' }}
+                className="font-black flex items-center gap-2"
+              >
+                View Project <ArrowRight size={16} />
+              </motion.span>
             </div>
           </div>
-        </section>
+        </motion.section>
       )}
 
-      {/* Final CTA */}
-      <section style={{ backgroundColor: C.void, borderTop: `1px solid ${C.surface}` }} className="py-20 text-center">
-        <div className="max-w-2xl mx-auto px-6">
+      {/* ── FINAL CTA ────────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: C.void, borderTop: `1px solid ${C.surface}` }} className="py-20 text-center relative overflow-hidden">
+        <div style={{ background: `radial-gradient(ellipse at center, ${accent}12 0%, transparent 70%)` }} className="absolute inset-0" />
+        <div className="max-w-2xl mx-auto px-6 relative z-10">
           <Reveal>
             <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.95 }} className="text-4xl font-black mb-4">
-              Like what you see? Let's work together.
+              Like what you see?<br />Let's work together.
             </h2>
+            <Squiggle color={accent} width={160} className="mx-auto mb-8" />
             <motion.button
               onClick={() => navigate('/contact')}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.97 }}
-              style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif' }}
-              className="mt-6 px-8 py-4 rounded-full font-black text-sm uppercase tracking-wide"
+              style={{ backgroundColor: accent, color: C.void, fontFamily: 'Sora, sans-serif' }}
+              className="px-10 py-4 rounded-full font-black text-sm uppercase tracking-wide shadow-2xl"
             >
               Start a Project
             </motion.button>
           </Reveal>
         </div>
       </section>
+
     </PageLayout>
   );
 }
