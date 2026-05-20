@@ -1,3 +1,13 @@
+export type HomeSectionType =
+  | 'hero' | 'services-marquee' | 'statement' | 'work-grid'
+  | 'pinned-work' | 'about-teaser' | 'clients' | 'testimonials' | 'cta';
+
+export interface HomeSectionConfig {
+  id: string;
+  type: HomeSectionType;
+  enabled: boolean;
+}
+
 export interface CaseStudy {
   id: string;
   slug: string;
@@ -69,6 +79,7 @@ export interface SiteContent {
     testimonials: { quote: string; author: string; company: string; photo: string; title: string }[];
     clients: string[];
     stats: { value: string; label: string }[];
+    homeSections: HomeSectionConfig[];
   };
   about: {
     headline: string;
@@ -152,6 +163,17 @@ export const defaultContent: SiteContent = {
       }
     ],
     clients: ["Real Nutri Co", "Coffee Chemistry", "TerraBarn", "Barky Brews", "Yugen Foundation", "Ground Animal Welfare"],
+    homeSections: [
+      { id: 's-hero', type: 'hero', enabled: true },
+      { id: 's-services', type: 'services-marquee', enabled: true },
+      { id: 's-statement', type: 'statement', enabled: true },
+      { id: 's-work', type: 'work-grid', enabled: true },
+      { id: 's-pinned', type: 'pinned-work', enabled: true },
+      { id: 's-about', type: 'about-teaser', enabled: true },
+      { id: 's-clients', type: 'clients', enabled: true },
+      { id: 's-testimonials', type: 'testimonials', enabled: true },
+      { id: 's-cta', type: 'cta', enabled: true },
+    ],
   },
 
   about: {

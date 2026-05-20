@@ -1,10 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronDown, ChevronUp, Check, Plus, Trash2, ArrowLeft, ImageIcon, GripVertical, Palette } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Check, Plus, Trash2, ArrowLeft, ImageIcon, GripVertical, Palette, Eye, EyeOff } from 'lucide-react';
 import { C } from './SketchyUI';
 import { useEdit } from '../context/EditContext';
-import { defaultContent } from '../data/content';
+import { defaultContent, HomeSectionType, HomeSectionConfig } from '../data/content';
+
+const DEFAULT_SECTIONS: HomeSectionConfig[] = [
+  { id: 's-hero', type: 'hero', enabled: true },
+  { id: 's-services', type: 'services-marquee', enabled: true },
+  { id: 's-statement', type: 'statement', enabled: true },
+  { id: 's-work', type: 'work-grid', enabled: true },
+  { id: 's-pinned', type: 'pinned-work', enabled: true },
+  { id: 's-about', type: 'about-teaser', enabled: true },
+  { id: 's-clients', type: 'clients', enabled: true },
+  { id: 's-testimonials', type: 'testimonials', enabled: true },
+  { id: 's-cta', type: 'cta', enabled: true },
+];
+
+const SECTION_META: Record<HomeSectionType, { label: string; removable: boolean }> = {
+  'hero':             { label: 'Hero',           removable: false },
+  'services-marquee': { label: 'Services Strip', removable: true  },
+  'statement':        { label: 'Bold Statement', removable: true  },
+  'work-grid':        { label: 'Work Grid',       removable: true  },
+  'pinned-work':      { label: 'Deep Dives',      removable: true  },
+  'about-teaser':     { label: 'About Teaser',    removable: true  },
+  'clients':          { label: 'Clients Scroll',  removable: true  },
+  'testimonials':     { label: 'Testimonials',    removable: true  },
+  'cta':              { label: 'Final CTA',        removable: true  },
+};
 
 function get(obj: any, path: string): any {
   return path.split('.').reduce((a, k) => a?.[k], obj);
@@ -442,6 +466,14 @@ export function EditPanel() {
   function addClient() { updateField('home.clients', [...content.home.clients, '']); }
   function removeClient(i: number) { updateField('home.clients', content.home.clients.filter((_, idx) => idx !== i)); }
 
+  // Section management helpers
+  const sections = content.home.homeSections ?? DEFAULT_SECTIONS;
+  function updateSections(next: HomeSectionConfig[]) { updateField('home.homeSections', next); }
+  function toggleSection(i: number) { const next = [...sections]; next[i] = { ...next[i], enabled: !next[i].enabled }; updateSections(next); }
+  function moveSection(i: number, dir: -1 | 1) { if (i + dir < 0 || i + dir >= sections.length) return; const next = [...sections]; [next[i], next[i + dir]] = [next[i + dir], next[i]]; updateSections(next); }
+  function removeSection(i: number) { updateSections(sections.filter((_, idx) => idx !== i)); }
+  function addSection(type: HomeSectionType) { updateSections([...sections, { id: Date.now().toString(), type, enabled: true }]); }
+
   // About helpers
   const quotes = content.about.quotes ?? [];
   function addQuote() { updateField('about.quotes', [...quotes, { text: '', author: '' }]); }
@@ -496,6 +528,84 @@ export function EditPanel() {
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
             {tab === 'Home' && <>
+              <Section title="Page Sections" accent={C.cyan} defaultOpen={true}>
+                <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10, marginBottom: 10, lineHeight: 1.5 }}>
+                  Toggle, reorder, or remove sections. Hero can be hidden but not deleted.
+                </p>
+                {sections.map((sec, i) => {
+                  const meta = SECTION_META[sec.type];
+                  return (
+                    <div key={sec.id} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5, padding: '5px 0', borderBottom: '1px solid #2A273340' }}>
+                      {/* Eye toggle */}
+                      <motion.button
+                        onClick={() => toggleSection(i)}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ color: sec.enabled ? C.cyan : '#FDFCFE20', flexShrink: 0, display: 'flex', alignItems: 'center', padding: '2px' }}
+                      >
+                        {sec.enabled ? <Eye size={13} /> : <EyeOff size={13} />}
+                      </motion.button>
+
+                      {/* Label */}
+                      <span style={{
+                        fontFamily: 'Sora, sans-serif',
+                        fontSize: 11,
+                        fontWeight: sec.enabled ? 900 : 400,
+                        color: sec.enabled ? '#FDFCFE' : '#FDFCFE30',
+                        flex: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {meta.label}
+                      </span>
+
+                      {/* Up / Down */}
+                      <motion.button
+                        onClick={() => moveSection(i, -1)}
+                        disabled={i === 0}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ color: i === 0 ? '#FDFCFE12' : '#FDFCFE40', flexShrink: 0, display: 'flex', alignItems: 'center', padding: '2px', cursor: i === 0 ? 'default' : 'pointer' }}
+                      >
+                        <ChevronUp size={12} />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => moveSection(i, 1)}
+                        disabled={i === sections.length - 1}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ color: i === sections.length - 1 ? '#FDFCFE12' : '#FDFCFE40', flexShrink: 0, display: 'flex', alignItems: 'center', padding: '2px', cursor: i === sections.length - 1 ? 'default' : 'pointer' }}
+                      >
+                        <ChevronDown size={12} />
+                      </motion.button>
+
+                      {/* Trash (not for hero) */}
+                      {meta.removable
+                        ? <RemoveBtn onClick={() => removeSection(i)} />
+                        : <div style={{ width: 22, flexShrink: 0 }} />
+                      }
+                    </div>
+                  );
+                })}
+
+                {/* Add section picker */}
+                <div style={{ marginTop: 10 }}>
+                  <label style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE30', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 5 }}>Add section</label>
+                  <select
+                    defaultValue=""
+                    onChange={e => { if (e.target.value) { addSection(e.target.value as HomeSectionType); e.target.value = ''; } }}
+                    style={{
+                      backgroundColor: '#0D0B10', color: '#FDFCFE', border: `1px dashed ${C.cyan}50`,
+                      fontFamily: 'Sora, sans-serif', fontSize: 11, borderRadius: 8, padding: '6px 10px',
+                      width: '100%', outline: 'none', cursor: 'pointer',
+                    }}
+                  >
+                    <option value="" disabled style={{ color: '#FDFCFE30' }}>Pick a section type…</option>
+                    {(Object.keys(SECTION_META) as HomeSectionType[]).map(type => (
+                      <option key={type} value={type} style={{ backgroundColor: '#1C1926' }}>{SECTION_META[type].label}</option>
+                    ))}
+                  </select>
+                </div>
+              </Section>
+
               <Section title="Hero">
                 <Field label="Headline" path="home.heroHeadline" />
                 <Field label="Subheadline" path="home.heroSub" multiline />
