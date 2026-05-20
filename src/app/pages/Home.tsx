@@ -11,6 +11,7 @@ const SERVICES = ['Brand Identity', 'Web Design', 'Motion & Video', 'Social Medi
 
 const DEFAULT_SECTIONS: HomeSectionConfig[] = [
   { id: 's-hero', type: 'hero', enabled: true },
+  { id: 's-stats', type: 'stats', enabled: true },
   { id: 's-services', type: 'services-marquee', enabled: true },
   { id: 's-statement', type: 'statement', enabled: true },
   { id: 's-work', type: 'work-grid', enabled: true },
@@ -431,18 +432,55 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
   );
 }
 
+/* ─── Stats — proper section below hero, cream bg for clear split ────────────── */
+function StatsSection({ content }: { content: SiteContent }) {
+  const colors = [C.pink, C.purple, C.cyan, C.yellow];
+  return (
+    <section style={{ backgroundColor: C.cream, borderTop: `4px solid ${C.void}`, borderBottom: `4px solid ${C.void}` }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '52px 48px', display: 'flex', flexWrap: 'wrap', gap: '28px 80px', alignItems: 'center', justifyContent: 'center' }}>
+        {content.home.stats.map((stat, i) => (
+          <motion.div key={stat.label}
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.07, y: -4 }}
+            style={{ textAlign: 'center', cursor: 'default' }}
+          >
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.12 + 0.1, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+              style={{ fontFamily: 'Fraunces, Georgia, serif', color: colors[i % 4], fontSize: 'clamp(2.8rem, 5vw, 4.5rem)', fontWeight: 900, lineHeight: 1 }}
+            >
+              <CountUp value={stat.value} />
+            </motion.div>
+            <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}55`, fontSize: 10, textTransform: 'uppercase', letterSpacing: 3, marginTop: 10, fontWeight: 700 }}>
+              {stat.label}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function ServicesMarquee() {
   return (
-    <div style={{ backgroundColor: C.cream, borderTop: `2px solid ${C.void}`, borderBottom: `2px solid ${C.void}`, padding: '16px 0', overflow: 'hidden' }}>
-      <motion.div animate={{ x: [0, '-50%'] }} transition={{ duration: 32, repeat: Infinity, ease: 'linear' }}
-        style={{ display: 'flex', whiteSpace: 'nowrap', width: 'max-content' }}>
-        {[...SERVICES, ...SERVICES].map((s, i) => (
-          <span key={i} style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(1rem, 2.2vw, 1.5rem)', fontWeight: 900, color: C.void, letterSpacing: '-0.01em', padding: '0 28px' }}>{s}</span>
-            <span style={{ color: C.pink, fontSize: 18 }}>✦</span>
-          </span>
-        ))}
-      </motion.div>
+    <div style={{ backgroundColor: C.cream, borderBottom: `2px solid ${C.void}`, padding: '16px 0', overflow: 'hidden' }}>
+      <style>{`.svc-wrap:hover .svc-inner { animation-play-state: paused; }`}</style>
+      <div className="svc-wrap" style={{ overflow: 'hidden' }}>
+        <motion.div className="svc-inner" animate={{ x: [0, '-50%'] }} transition={{ duration: 32, repeat: Infinity, ease: 'linear' }}
+          style={{ display: 'flex', whiteSpace: 'nowrap', width: 'max-content' }}>
+          {[...SERVICES, ...SERVICES].map((s, i) => (
+            <span key={i} style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(1rem, 2.2vw, 1.5rem)', fontWeight: 900, color: C.void, letterSpacing: '-0.01em', padding: '0 28px' }}>{s}</span>
+              <span style={{ color: C.pink, fontSize: 18 }}>✦</span>
+            </span>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -552,11 +590,16 @@ function AboutTeaser({ navigate, content }: { navigate: (p: string) => void; con
   );
 }
 
-function TestimonialsSection({ navigate, content }: { navigate: (p: string) => void; content: SiteContent }) {
+function TestimonialsSection({ content }: { navigate: (p: string) => void; content: SiteContent }) {
   return (
-    <section style={{ backgroundColor: C.void, padding: '108px 0', overflow: 'hidden' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px' }}>
+    <section style={{ backgroundColor: C.void, padding: '108px 0', overflow: 'hidden', position: 'relative' }}>
+      {/* Floating background accents */}
+      <motion.div animate={{ rotate: [0, 360], opacity: [0.06, 0.12, 0.06] }} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', top: '10%', right: '5%', fontFamily: 'serif', fontSize: 160, color: C.cyan, lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>✦</motion.div>
+      <motion.div animate={{ rotate: [0, -360], opacity: [0.04, 0.09, 0.04] }} transition={{ duration: 42, repeat: Infinity, ease: 'linear', delay: 8 }}
+        style={{ position: 'absolute', bottom: '8%', left: '3%', fontFamily: 'serif', fontSize: 100, color: C.purple, lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>✦</motion.div>
 
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 1 }}>
         <Reveal>
           <p style={{ fontFamily: 'Sora, sans-serif', color: C.cyan, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Client Love</p>
           <h2 style={{ marginBottom: 48 }}>
@@ -571,9 +614,19 @@ function TestimonialsSection({ navigate, content }: { navigate: (p: string) => v
             const c = colors[i % colors.length];
             const dirs = ['left', 'bottom', 'right'] as const;
             return (
-              <Reveal key={i} delay={i * 0.1} from={dirs[i % 3]}>
-                <div style={{ backgroundColor: C.cardDark, borderRadius: 18, padding: '32px 28px', borderTop: `3px solid ${c}`, height: '100%' }}>
-                  <div style={{ color: c, fontSize: 52, lineHeight: 0.8, fontFamily: 'Georgia, serif', opacity: 0.35, marginBottom: 18 }}>"</div>
+              <Reveal key={i} delay={i * 0.12} from={dirs[i % 3]}>
+                <motion.div
+                  whileHover={{ y: -6, boxShadow: `0 24px 60px ${c}20` }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  style={{ backgroundColor: C.cardDark, borderRadius: 18, padding: '32px 28px', borderTop: `3px solid ${c}`, height: '100%' }}
+                >
+                  <motion.div
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 0.35 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.12 + 0.2, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+                    style={{ color: c, fontSize: 64, lineHeight: 0.8, fontFamily: 'Georgia, serif', marginBottom: 18 }}
+                  >"</motion.div>
                   <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}C0`, lineHeight: 1.85, fontSize: 13.5, marginBottom: 28 }}>{t.quote}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderTop: `1px solid ${C.surface}`, paddingTop: 20 }}>
                     {t.photo && <img src={t.photo} alt={t.author} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${c}35`, flexShrink: 0 }} />}
@@ -582,7 +635,7 @@ function TestimonialsSection({ navigate, content }: { navigate: (p: string) => v
                       <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}38`, fontSize: 11, marginTop: 2 }}>{t.title}, {t.company}</div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </Reveal>
             );
           })}
@@ -594,8 +647,14 @@ function TestimonialsSection({ navigate, content }: { navigate: (p: string) => v
 
 function CTASection({ navigate, content }: { navigate: (p: string) => void; content: SiteContent }) {
   return (
-    <section style={{ backgroundColor: C.pink, padding: '108px 48px', overflow: 'hidden' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+    <section style={{ backgroundColor: C.pink, padding: '108px 48px', overflow: 'hidden', position: 'relative' }}>
+      {/* Floating micro-elements */}
+      <motion.div animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ position: 'absolute', top: '20%', right: '8%', width: 64, height: 64, borderRadius: 14, backgroundColor: `${C.void}14`, border: `1px solid ${C.void}20`, pointerEvents: 'none' }} />
+      <motion.div animate={{ y: [0, 16, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        style={{ position: 'absolute', bottom: '25%', left: '6%', width: 40, height: 40, borderRadius: '50%', backgroundColor: `${C.void}10`, border: `1px solid ${C.void}18`, pointerEvents: 'none' }} />
+
+      <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end">
           <Reveal from="left">
             <h2>
@@ -607,12 +666,16 @@ function CTASection({ navigate, content }: { navigate: (p: string) => void; cont
           <Reveal from="right" delay={0.12}>
             <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}65`, lineHeight: 1.8, fontSize: '1.05rem', marginBottom: 36 }}>{content.home.ctaSub}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              <motion.button onClick={() => navigate('/contact')} whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}
-                style={{ backgroundColor: C.void, color: C.cream, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, border: 'none', cursor: 'pointer', boxShadow: '0 16px 48px rgba(0,0,0,0.25)' }}>
+              <motion.button
+                onClick={() => navigate('/contact')}
+                whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}
+                animate={{ boxShadow: [`0 8px 32px rgba(0,0,0,0.2)`, `0 16px 56px rgba(0,0,0,0.38)`, `0 8px 32px rgba(0,0,0,0.2)`] }}
+                transition={{ boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } } as any}
+                style={{ backgroundColor: C.void, color: C.cream, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, border: 'none', cursor: 'pointer' }}>
                 Start a Project
               </motion.button>
               <motion.button onClick={() => navigate('/work')} whileHover={{ scale: 1.05, y: -3 }}
-                style={{ backgroundColor: 'transparent', color: `${C.void}70`, border: `2px solid ${C.void}30`, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, cursor: 'pointer' }}>
+                style={{ backgroundColor: 'transparent', color: `${C.void}80`, border: `2px solid ${C.void}35`, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, cursor: 'pointer' }}>
                 See Our Work
               </motion.button>
             </div>
@@ -637,6 +700,8 @@ export default function Home() {
         switch (s.type) {
           case 'hero':
             return <HeroSection key={s.id} navigate={navigate} content={content} />;
+          case 'stats':
+            return <StatsSection key={s.id} content={content} />;
           case 'services-marquee':
             return <ServicesMarquee key={s.id} />;
           case 'statement':

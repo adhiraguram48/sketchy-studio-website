@@ -1,5 +1,5 @@
 export type HomeSectionType =
-  | 'hero' | 'services-marquee' | 'statement' | 'work-grid'
+  | 'hero' | 'stats' | 'services-marquee' | 'statement' | 'work-grid'
   | 'pinned-work' | 'about-teaser' | 'clients' | 'testimonials' | 'cta';
 
 export interface HomeSectionConfig {
@@ -165,6 +165,7 @@ export const defaultContent: SiteContent = {
     clients: ["Real Nutri Co", "Coffee Chemistry", "TerraBarn", "Barky Brews", "Yugen Foundation", "Ground Animal Welfare"],
     homeSections: [
       { id: 's-hero', type: 'hero', enabled: true },
+      { id: 's-stats', type: 'stats', enabled: true },
       { id: 's-services', type: 'services-marquee', enabled: true },
       { id: 's-statement', type: 'statement', enabled: true },
       { id: 's-work', type: 'work-grid', enabled: true },

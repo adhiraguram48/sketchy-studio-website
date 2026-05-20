@@ -8,6 +8,7 @@ import { defaultContent, HomeSectionType, HomeSectionConfig } from '../data/cont
 
 const DEFAULT_SECTIONS: HomeSectionConfig[] = [
   { id: 's-hero', type: 'hero', enabled: true },
+  { id: 's-stats', type: 'stats', enabled: true },
   { id: 's-services', type: 'services-marquee', enabled: true },
   { id: 's-statement', type: 'statement', enabled: true },
   { id: 's-work', type: 'work-grid', enabled: true },
@@ -20,6 +21,7 @@ const DEFAULT_SECTIONS: HomeSectionConfig[] = [
 
 const SECTION_META: Record<HomeSectionType, { label: string; removable: boolean }> = {
   'hero':             { label: 'Hero',           removable: false },
+  'stats':            { label: 'Stats Bar',      removable: true  },
   'services-marquee': { label: 'Services Strip', removable: true  },
   'statement':        { label: 'Bold Statement', removable: true  },
   'work-grid':        { label: 'Work Grid',       removable: true  },
