@@ -149,158 +149,133 @@ function PinnedWork({ projects, navigate }: { projects: CaseStudy[]; navigate: (
   );
 }
 
-/* ─── Work grid — sorted masonry style, shown on home ──────────────────────── */
-const GRID_HEIGHTS = [340, 260, 310, 280, 320, 250];
-function WorkGrid({ projects, navigate }: { projects: CaseStudy[]; navigate: (p: string) => void }) {
-  const shown = projects.slice(0, 6);
+/* ─── Work auto-scroll — 4 cols, col1+3 up, col2+4 down, infinite ───────────── */
+function WorkAutoGrid({ projects, navigate }: { projects: CaseStudy[]; navigate: (p: string) => void }) {
+  // Pad each column to have enough cards to look full
+  const base = projects.length < 4 ? [...projects, ...projects, ...projects, ...projects] : [...projects, ...projects];
+  const cols: CaseStudy[][] = [[], [], [], []];
+  base.forEach((p, i) => cols[i % 4].push(p));
+
   return (
-    <section style={{ backgroundColor: '#F0EDE8', padding: '88px 0 100px' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52 }}>
-          <div>
-            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}40`, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 10 }}>
-              Selected Work
-            </p>
-            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1 }}>
-              {projects.length} brands.{' '}
-              <em style={{ fontWeight: 400, fontStyle: 'italic', color: `${C.void}55` }}>Every one different.</em>
-            </h2>
-          </div>
-          <motion.button onClick={() => navigate('/work')} whileHover={{ x: 5 }}
-            style={{ fontFamily: 'Sora, sans-serif', color: C.void, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 2, display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1.5px solid ${C.void}30`, borderRadius: 100, padding: '10px 22px', cursor: 'pointer', flexShrink: 0 }}>
-            View all <ArrowUpRight size={13} />
-          </motion.button>
+    <section style={{ backgroundColor: C.void, position: 'relative' }}>
+      {/* Header row */}
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '72px 48px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 10 }}>
+            Our Work
+          </p>
+          <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1 }}>
+            {projects.length} brands.{' '}
+            <em style={{ fontWeight: 400, fontStyle: 'italic', color: `${C.cream}35` }}>Every one different.</em>
+          </h2>
         </div>
+        <motion.button onClick={() => navigate('/work')} whileHover={{ x: 5 }}
+          style={{ fontFamily: 'Sora, sans-serif', color: C.cream, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 2, display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1.5px solid ${C.cream}25`, borderRadius: 100, padding: '10px 22px', cursor: 'pointer', flexShrink: 0 }}>
+          View all <ArrowUpRight size={13} />
+        </motion.button>
+      </div>
 
-        {/* 3-col masonry grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
-          {shown.map((p, i) => {
-            const a = accentColor(p.tags, (p as any).accentColor);
-            const h = GRID_HEIGHTS[i % GRID_HEIGHTS.length];
+      {/* 4-col infinite scroll grid */}
+      <div style={{ height: '90vh', overflow: 'hidden', position: 'relative', padding: '0 48px 0' }}>
+        <style>{`
+          @keyframes wag-up  { from { transform: translateY(0);    } to { transform: translateY(-50%); } }
+          @keyframes wag-dn  { from { transform: translateY(-50%); } to { transform: translateY(0);    } }
+          .wag-c0 { animation: wag-up 24s linear infinite; }
+          .wag-c1 { animation: wag-dn 28s linear infinite; }
+          .wag-c2 { animation: wag-up 20s linear infinite; }
+          .wag-c3 { animation: wag-dn 26s linear infinite; }
+          .wag-card { transition: opacity 0.3s; }
+          .wag-card:hover { opacity: 0.82; }
+          .wag-card .wag-overlay { opacity: 0; transition: opacity 0.3s; }
+          .wag-card:hover .wag-overlay { opacity: 1; }
+        `}</style>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, height: '100%' }}>
+          {cols.map((col, ci) => {
+            const doubled = [...col, ...col];
             return (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 44 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.72, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                whileHover="hov"
-                onClick={() => navigate(`/work/${p.slug}`)}
-                style={{ borderRadius: 18, overflow: 'hidden', cursor: 'pointer', backgroundColor: '#fff', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}
-              >
-                {/* Image */}
-                <div style={{ height: h, overflow: 'hidden', position: 'relative' }}>
-                  {p.coverImage ? (
-                    <motion.img src={p.coverImage} alt={p.client}
-                      variants={{ hov: { scale: 1.07 } }}
-                      transition={{ duration: 0.75, ease: [0.25, 0.1, 0.25, 1] }}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${a}35 0%, ${a}10 60%, transparent 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontFamily: 'Fraunces, serif', fontSize: 110, fontWeight: 900, color: a, opacity: 0.22, lineHeight: 1, userSelect: 'none' }}>
-                        {p.client[0]}
-                      </span>
-                    </div>
-                  )}
-                  {/* Accent top on hover */}
-                  <motion.div
-                    variants={{ hov: { scaleX: 1 } }} initial={{ scaleX: 0 }}
-                    transition={{ duration: 0.35 }}
-                    style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: a, transformOrigin: 'left' }}
-                  />
-                  {/* Year pill */}
-                  <div style={{ position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', color: 'rgba(255,255,255,0.7)', fontFamily: 'Sora, sans-serif', fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, padding: '4px 10px', borderRadius: 100 }}>
-                    {p.year}
-                  </div>
+              <div key={ci} style={{ overflow: 'hidden', height: '100%' }}>
+                <div className={`wag-c${ci}`}>
+                  {doubled.map((p, i) => {
+                    const a = accentColor(p.tags, (p as any).accentColor);
+                    return (
+                      <div key={`${ci}-${i}`} className="wag-card"
+                        onClick={() => navigate(`/work/${p.slug}`)}
+                        style={{ height: 270, borderRadius: 12, overflow: 'hidden', marginBottom: 10, position: 'relative', cursor: 'pointer', backgroundColor: `${a}18` }}>
+                        {p.coverImage
+                          ? <img src={p.coverImage} alt={p.client} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${a}40 0%, ${a}12 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ fontFamily: 'Fraunces, serif', fontSize: 80, fontWeight: 900, color: a, opacity: 0.3, lineHeight: 1, userSelect: 'none' }}>{p.client[0]}</span>
+                            </div>
+                        }
+                        {/* Hover overlay with name */}
+                        <div className="wag-overlay" style={{ position: 'absolute', inset: 0, background: `linear-gradient(to top, ${C.void}E0 0%, transparent 55%)` }}>
+                          <div style={{ position: 'absolute', bottom: 14, left: 14, right: 14 }}>
+                            <div style={{ fontFamily: 'Fraunces, serif', color: C.cream, fontWeight: 900, fontSize: '0.95rem', lineHeight: 1.2 }}>{p.client}</div>
+                            <div style={{ fontFamily: 'Sora, sans-serif', color: a, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 3 }}>{p.tags[0]}</div>
+                          </div>
+                        </div>
+                        {/* Accent top stripe */}
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, backgroundColor: a }} />
+                      </div>
+                    );
+                  })}
                 </div>
-
-                {/* Text below */}
-                <div style={{ padding: '18px 20px 20px' }}>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                    {p.tags.map(tag => (
-                      <span key={tag} style={{ fontFamily: 'Sora, sans-serif', color: a, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5 }}>{tag}</span>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                    <div>
-                      <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.015em', lineHeight: 1.1, marginBottom: 4 }}>
-                        {p.client}
-                      </h3>
-                      <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}45`, fontSize: 12, lineHeight: 1.5 }}>{p.tagline}</p>
-                    </div>
-                    <motion.div
-                      variants={{ hov: { opacity: 1, scale: 1, rotate: 0 } }}
-                      initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
-                      transition={{ duration: 0.2 }}
-                      style={{ backgroundColor: a, color: '#fff', borderRadius: '50%', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
-                      <ArrowUpRight size={13} />
-                    </motion.div>
-                  </div>
-                </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
 
-        {/* Horizontal sorted-style ticker below the grid */}
-        <div style={{ marginTop: 64, overflow: 'hidden' }}>
-          <style>{`
-            @keyframes wt-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-            .wt-inner { animation: wt-scroll 55s linear infinite; }
-            .wt-wrap:hover .wt-inner { animation-play-state: paused; }
-          `}</style>
-          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}30`, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 20, paddingLeft: 2 }}>All our work</p>
-          <div className="wt-wrap" style={{ overflow: 'hidden' }}>
-            <div className="wt-inner" style={{ display: 'flex', gap: 14, width: 'max-content' }}>
-              {[...projects, ...projects].map((p, i) => {
-                const a = accentColor(p.tags, (p as any).accentColor);
-                return (
-                  <div key={i} onClick={() => navigate(`/work/${p.slug}`)}
-                    style={{ width: 300, flexShrink: 0, cursor: 'pointer', borderRadius: 14, overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-                    <div style={{ height: 220, position: 'relative', overflow: 'hidden' }}>
-                      {p.coverImage
-                        ? <img src={p.coverImage} alt={p.client} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                        : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${a}30 0%, ${a}08 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontFamily: 'Fraunces, serif', fontSize: 80, fontWeight: 900, color: a, opacity: 0.25, lineHeight: 1 }}>{p.client[0]}</span>
-                          </div>
-                      }
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, backgroundColor: a }} />
-                    </div>
-                    <div style={{ padding: '12px 14px 14px' }}>
-                      <div style={{ fontFamily: 'Fraunces, serif', color: C.void, fontWeight: 900, fontSize: '1rem', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{p.client}</div>
-                      <div style={{ fontFamily: 'Sora, sans-serif', color: a, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>{p.tags.join(' · ')}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        {/* Fade edges top/bottom */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 80, background: `linear-gradient(to bottom, ${C.void} 0%, transparent 100%)`, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: `linear-gradient(to top, ${C.void} 0%, transparent 100%)`, pointerEvents: 'none' }} />
       </div>
     </section>
   );
 }
 
-/* ─── Client marquee — horizontal infinite CSS scroll ───────────────────────── */
-function ClientMarquee({ clients }: { clients: string[] }) {
+/* ─── Clients — sticky horizontal scroll driven by scrollY ──────────────────── */
+function ClientsHorizontal({ clients }: { clients: string[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start end', 'end start'] });
+  const x = useTransform(scrollYProgress, [0, 1], ['8%', '-70%']);
+
   return (
-    <div style={{ overflow: 'hidden', borderTop: `1px solid ${C.surface}`, borderBottom: `1px solid ${C.surface}`, padding: '28px 0', backgroundColor: C.cardDark }}>
-      <style>{`
-        @keyframes cl-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .cl-inner { animation: cl-scroll 28s linear infinite; }
-        .cl-wrap:hover .cl-inner { animation-play-state: paused; }
-      `}</style>
-      <div className="cl-wrap" style={{ overflow: 'hidden' }}>
-        <div className="cl-inner" style={{ display: 'flex', alignItems: 'center', width: 'max-content' }}>
-          {[...clients, ...clients].map((client, i) => (
-            <span key={i} style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'Fraunces, Georgia, serif', color: `${C.cream}22`, fontSize: 'clamp(1.4rem, 2.8vw, 2.2rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3, padding: '0 44px', whiteSpace: 'nowrap' }}>
-                {client}
-              </span>
-              <span style={{ color: `${C.cream}15`, fontSize: 16, lineHeight: 1 }}>✦</span>
+    <div ref={containerRef} style={{ height: '280vh', position: 'relative', backgroundColor: C.cream }}>
+      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        {/* Label */}
+        <div style={{ position: 'absolute', top: 48, left: 48 }}>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}35`, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4 }}>Brands We've Built</p>
+        </div>
+        {/* Counter */}
+        <div style={{ position: 'absolute', top: 48, right: 48 }}>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}25`, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3 }}>
+            {clients.length}+ clients
+          </p>
+        </div>
+
+        {/* Horizontal strip */}
+        <motion.div style={{ x, display: 'flex', gap: 56, alignItems: 'baseline', paddingLeft: 48, willChange: 'transform' }}>
+          {clients.map((client, i) => (
+            <span key={i} style={{
+              fontFamily: 'Fraunces, Georgia, serif',
+              fontSize: 'clamp(3.5rem, 9vw, 7.5rem)',
+              fontWeight: i % 2 === 0 ? 900 : 400,
+              fontStyle: i % 2 === 0 ? 'normal' : 'italic',
+              color: i % 2 === 0 ? C.void : `${C.void}28`,
+              whiteSpace: 'nowrap',
+              letterSpacing: '-0.03em',
+              lineHeight: 1,
+            }}>
+              {client}
             </span>
           ))}
+        </motion.div>
+
+        {/* Scroll hint */}
+        <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>
+            <div style={{ width: 1, height: 36, backgroundColor: `${C.void}25`, margin: '0 auto' }} />
+          </motion.div>
         </div>
       </div>
     </div>
@@ -499,8 +474,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════ SORTED-STYLE WORK GRID + TICKER ═══════════════ */}
-      <WorkGrid projects={content.caseStudies} navigate={navigate} />
+      {/* ═══════════════════ WORK AUTO-SCROLL GRID ════════════════════════ */}
+      <WorkAutoGrid projects={content.caseStudies} navigate={navigate} />
 
       {/* ═══════════════════ PINNED SCROLL WORK (3 featured) ════════════════ */}
       <div style={{ backgroundColor: C.void, padding: '80px 48px 52px', position: 'relative', overflow: 'hidden' }}>
@@ -573,6 +548,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════════ CLIENTS HORIZONTAL SCROLL ═══════════════════════ */}
+      <ClientsHorizontal clients={content.home.clients} />
+
       {/* ═══════════════════ TESTIMONIALS ════════════════════════════════════ */}
       <section style={{ backgroundColor: C.void, padding: '108px 0', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px' }}>
@@ -584,11 +562,6 @@ export default function Home() {
               <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: `${C.cream}30`, fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 400, letterSpacing: '-0.025em', fontStyle: 'italic', lineHeight: 1.05 }}>after.</span>
             </h2>
           </Reveal>
-
-          {/* Client names — horizontal infinite CSS marquee */}
-          <div style={{ marginBottom: 52 }}>
-            <ClientMarquee clients={content.home.clients} />
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {content.home.testimonials.map((t, i) => {
