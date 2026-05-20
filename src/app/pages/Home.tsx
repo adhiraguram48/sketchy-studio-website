@@ -4,7 +4,7 @@ import { ArrowRight, ArrowUpRight, Star } from 'lucide-react';
 import { useState } from 'react';
 import {
   C, FloatingOrbs, Squiggle, SectionLabel, Sticker, Reveal,
-  TiltCard, DotTrio, WordReveal, NoiseOverlay, GradientText
+  TiltCard, DotTrio, WordReveal, NoiseOverlay, GradientText, CountUp
 } from '../components/SketchyUI';
 import { useEdit, EI } from '../context/EditContext';
 import { PageLayout } from '../components/Layout';
@@ -112,7 +112,7 @@ export default function Home() {
             {content.home.stats.map((stat) => (
               <div key={stat.label}>
                 <div style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.pink }} className="text-4xl font-black">
-                  {stat.value}
+                  <CountUp value={stat.value} />
                 </div>
                 <div style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}60` }} className="text-sm mt-1">
                   {stat.label}
@@ -269,7 +269,7 @@ export default function Home() {
                   <EI
                     path="about.founderPhoto"
                     fallbackSrc="https://images.unsplash.com/photo-1636293875439-b3125c0f1fc1?w=600&h=700&fit=crop"
-                    alt="Caleb - Founder"
+                    alt="The Sketchy Studio founders"
                     className="w-full rounded-2xl shadow-2xl"
                     style={{ maxHeight: 500, objectFit: 'cover' }}
                   />

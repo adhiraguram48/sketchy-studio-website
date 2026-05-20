@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { motion, AnimatePresence, useScroll } from 'motion/react';
 import { Menu, X, Instagram, Mail, Phone, ArrowUpRight } from 'lucide-react';
-import { C, DotTrio } from './SketchyUI';
+import { C, DotTrio, CursorGlow, ScrollProgress } from './SketchyUI';
 import { useEdit } from '../context/EditContext';
 
 const NAV_LINKS = [
@@ -149,7 +149,12 @@ export function Navigation() {
 
 // Edit Mode Toggle
 export function EditToggle() {
-  const { editMode, toggleEditMode, resetContent } = useEdit();
+  const { editMode, toggleEditMode, resetContent, syncStatus, supabaseReady } = useEdit();
+
+  const syncLabel = syncStatus === 'saving' ? '⏳ Saving…'
+    : syncStatus === 'saved' ? '✓ Saved'
+    : syncStatus === 'error' ? '⚠ Sync error'
+    : null;
 
   return (
     <motion.div
@@ -159,6 +164,23 @@ export function EditToggle() {
       className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2"
     >
       <AnimatePresence>
+        {syncLabel && (
+          <motion.div
+            key={syncStatus}
+            initial={{ opacity: 0, y: 8, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            style={{
+              backgroundColor: syncStatus === 'error' ? '#FF4444' : C.cardDark,
+              color: syncStatus === 'saved' ? C.cyan : C.cream,
+              fontFamily: 'Sora, sans-serif',
+              border: `1px solid ${syncStatus === 'saved' ? C.cyan : C.surface}`,
+            }}
+            className="px-3 py-1.5 rounded-full text-xs font-black shadow-lg"
+          >
+            {syncLabel}
+          </motion.div>
+        )}
         {editMode && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
@@ -179,7 +201,7 @@ export function EditToggle() {
         style={{ backgroundColor: editMode ? C.cyan : C.purple, color: C.void, fontFamily: 'Sora, sans-serif' }}
         className="px-5 py-3 rounded-full font-black text-sm shadow-xl uppercase tracking-wide flex items-center gap-2"
       >
-        {editMode ? '✓ Save Mode' : '✏️ Edit Mode'}
+        {editMode ? (supabaseReady ? '✓ Editing (Cloud)' : '✓ Editing') : '✏️ Edit Mode'}
       </motion.button>
     </motion.div>
   );
@@ -258,6 +280,8 @@ export function Footer() {
 export function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <ScrollProgress />
+      <CursorGlow />
       <Navigation />
       <main className="min-h-screen">{children}</main>
       <Footer />

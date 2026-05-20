@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, useInView } from 'motion/react';
+import { motion, useMotionValue, useTransform, useInView, useScroll, useSpring } from 'motion/react';
 import { useRef, useEffect, useState } from 'react';
 
 // Brand colors
@@ -359,18 +359,60 @@ export function NoiseOverlay() {
   );
 }
 
-// Animated counter
+// Real CountUp — animates from 0 to the number in the value string
+export function CountUp({ value, className = '' }: { value: string; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-20px' });
+  const [displayed, setDisplayed] = useState(() => {
+    const m = value.match(/^(\d+)(.*)$/);
+    return m ? `0${m[2]}` : value;
+  });
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isInView) return;
+    const m = value.match(/^(\d+)(.*)$/);
+    if (!m) { setDisplayed(value); return; }
+    const target = parseInt(m[1], 10);
+    const suffix = m[2];
+    const duration = 1600;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 4);
+      setDisplayed(`${Math.round(eased * target)}${suffix}`);
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [isInView, value]);
+
+  return <span ref={ref} className={className}>{displayed}</span>;
+}
+
+// Animated counter (legacy alias)
 export function AnimatedNumber({ value, suffix = '' }: { value: string; suffix?: string }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  return <CountUp value={`${value}${suffix}`} />;
+}
+
+// Scroll progress bar — thin line at top of viewport
+export function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 30 });
   return (
-    <motion.span
-      ref={ref}
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-    >
-      {value}{suffix}
-    </motion.span>
+    <motion.div
+      style={{
+        scaleX,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        backgroundColor: C.pink,
+        transformOrigin: 'left',
+        zIndex: 9999,
+      }}
+    />
   );
 }
