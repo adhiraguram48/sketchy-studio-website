@@ -230,10 +230,20 @@ export function Footer() {
   );
 }
 
+// Scroll to top whenever the route changes
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
+
 // Page layout wrapper
 export function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <ScrollToTop />
       <ScrollProgress />
       <CursorGlow />
       <EditKeyListener />
