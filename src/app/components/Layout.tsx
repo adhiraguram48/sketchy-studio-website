@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { motion, AnimatePresence, useScroll } from 'motion/react';
 import { Menu, X, Instagram, Mail, Phone, ArrowUpRight } from 'lucide-react';
 import { C, DotTrio, CursorGlow, ScrollProgress } from './SketchyUI';
+import { EditPanel } from './EditPanel';
 import { useEdit } from '../context/EditContext';
 
 const NAV_LINKS = [
@@ -147,64 +148,17 @@ export function Navigation() {
   );
 }
 
-// Edit Mode Toggle
-export function EditToggle() {
-  const { editMode, toggleEditMode, resetContent, syncStatus, supabaseReady } = useEdit();
-
-  const syncLabel = syncStatus === 'saving' ? '⏳ Saving…'
-    : syncStatus === 'saved' ? '✓ Saved'
-    : syncStatus === 'error' ? '⚠ Sync error'
-    : null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1 }}
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2"
-    >
-      <AnimatePresence>
-        {syncLabel && (
-          <motion.div
-            key={syncStatus}
-            initial={{ opacity: 0, y: 8, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            style={{
-              backgroundColor: syncStatus === 'error' ? '#FF4444' : C.cardDark,
-              color: syncStatus === 'saved' ? C.cyan : C.cream,
-              fontFamily: 'Sora, sans-serif',
-              border: `1px solid ${syncStatus === 'saved' ? C.cyan : C.surface}`,
-            }}
-            className="px-3 py-1.5 rounded-full text-xs font-black shadow-lg"
-          >
-            {syncLabel}
-          </motion.div>
-        )}
-        {editMode && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            onClick={() => { if (window.confirm('Reset all content to defaults?')) resetContent(); }}
-            style={{ backgroundColor: '#FF4444', fontFamily: 'Sora, sans-serif' }}
-            className="px-4 py-2 rounded-full text-white text-xs font-black uppercase tracking-wide shadow-lg"
-          >
-            Reset Content
-          </motion.button>
-        )}
-      </AnimatePresence>
-      <motion.button
-        onClick={toggleEditMode}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        style={{ backgroundColor: editMode ? C.cyan : C.purple, color: C.void, fontFamily: 'Sora, sans-serif' }}
-        className="px-5 py-3 rounded-full font-black text-sm shadow-xl uppercase tracking-wide flex items-center gap-2"
-      >
-        {editMode ? (supabaseReady ? '✓ Editing (Cloud)' : '✓ Editing') : '✏️ Edit Mode'}
-      </motion.button>
-    </motion.div>
-  );
+// Keyboard shortcut listener — Shift+Alt+E toggles edit mode (hidden from clients)
+export function EditKeyListener() {
+  const { toggleEditMode } = useEdit();
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'e') toggleEditMode();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toggleEditMode]);
+  return null;
 }
 
 // Footer
@@ -282,10 +236,11 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
     <>
       <ScrollProgress />
       <CursorGlow />
+      <EditKeyListener />
       <Navigation />
       <main className="min-h-screen">{children}</main>
       <Footer />
-      <EditToggle />
+      <EditPanel />
     </>
   );
 }

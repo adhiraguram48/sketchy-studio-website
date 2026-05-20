@@ -167,26 +167,64 @@ interface EditableImgProps {
 export function EI({ path, fallbackSrc, alt, className, style }: EditableImgProps) {
   const { editMode, content, updateField } = useEdit();
   const value = (getNestedValue(content, path) as string) || fallbackSrc;
+  const [open, setOpen] = React.useState(false);
+  const [url, setUrl] = React.useState(value);
 
   if (editMode) {
     return (
-      <div className="relative group" style={{ display: 'inline-block' }}>
+      <div className="relative group" style={{ display: 'inline-block', width: '100%' }}>
         <img src={value} alt={alt} className={className} style={style} />
         <div
-          className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          style={{ borderRadius: 'inherit' }}
+          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 'inherit' }}
         >
           <button
-            onClick={() => {
-              const url = window.prompt('Enter image URL:', value);
-              if (url) updateField(path, url);
-            }}
+            onClick={() => { setUrl(value); setOpen(true); }}
             style={{ backgroundColor: '#9B5CE8', fontFamily: 'Sora, sans-serif' }}
-            className="text-white px-4 py-2 rounded-full text-sm font-black"
+            className="text-white px-4 py-2 rounded-full text-sm font-black shadow-xl"
           >
             📷 Change Image
           </button>
         </div>
+        {open && (
+          <div
+            className="absolute z-50 rounded-2xl p-4 shadow-2xl"
+            style={{ backgroundColor: '#1C1926', border: '1px solid #2A2733', bottom: 'calc(100% + 8px)', left: 0, right: 0, minWidth: 280 }}
+          >
+            <p style={{ fontFamily: 'Sora, sans-serif', color: '#FDFCFE', fontSize: 12, fontWeight: 900, marginBottom: 8 }}>
+              Paste image URL
+            </p>
+            <input
+              type="text"
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') { updateField(path, url); setOpen(false); }
+                if (e.key === 'Escape') setOpen(false);
+              }}
+              autoFocus
+              placeholder="https://..."
+              style={{ backgroundColor: '#0D0B10', color: '#FDFCFE', border: '1px solid #2A2733', fontFamily: 'Sora, sans-serif', fontSize: 12, borderRadius: 8, padding: '6px 10px', width: '100%', outline: 'none', marginBottom: 8 }}
+            />
+            {url && <img src={url} alt="preview" className="w-full rounded-lg object-cover mb-3" style={{ maxHeight: 120 }} onError={() => {}} />}
+            <div className="flex gap-2">
+              <button
+                onClick={() => { updateField(path, url); setOpen(false); }}
+                style={{ backgroundColor: '#9B5CE8', color: '#0D0B10', fontFamily: 'Sora, sans-serif', fontSize: 11, fontWeight: 900 }}
+                className="flex-1 py-2 rounded-full uppercase tracking-wide"
+              >
+                Apply
+              </button>
+              <button
+                onClick={() => setOpen(false)}
+                style={{ backgroundColor: '#2A2733', color: '#FDFCFE80', fontFamily: 'Sora, sans-serif', fontSize: 11 }}
+                className="px-4 py-2 rounded-full"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
