@@ -82,6 +82,7 @@ export interface SiteContent {
     studioPhoto: string;
     team: { name: string; title: string; bio: string; photo: string }[];
     values: { name: string; description: string }[];
+    quotes: { text: string; author: string }[];
   };
   services: {
     headline: string;
@@ -188,6 +189,11 @@ export const defaultContent: SiteContent = {
         bio: "The one behind the camera and the edit timeline — reels, brand films, and content that actually stops the scroll.",
         photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop"
       }
+    ],
+    quotes: [
+      { text: "Design should earn its keep. Pretty for its own sake doesn't interest us.", author: "Adhi, Co-Founder" },
+      { text: "Most brands are forgettable. We fix that. Great design isn't decoration — it's infrastructure.", author: "Prateek, Co-Founder" },
+      { text: "We stay close to the work. Every project gets the full team, aligned from day one.", author: "The Sketchy Studio" },
     ],
     values: [
       {

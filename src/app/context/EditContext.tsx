@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { defaultContent, SiteContent } from '../data/content';
-import { supabase } from '../../lib/supabase';
+import { backend } from '../../lib/backend';
 
 type SyncStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -8,7 +8,7 @@ interface EditContextType {
   editMode: boolean;
   content: SiteContent;
   syncStatus: SyncStatus;
-  supabaseReady: boolean;
+  backendReady: boolean;
   toggleEditMode: () => void;
   updateField: (path: string, value: any) => void;
   resetContent: () => void;
@@ -49,7 +49,7 @@ const STORAGE_KEY = 'sketchy-studio-content';
 export function EditProvider({ children }: { children: React.ReactNode }) {
   const [editMode, setEditMode] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
-  const [supabaseReady, setSupabaseReady] = useState(false);
+  const [backendReady, setBackendReady] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstLoad = useRef(true);
 
@@ -61,38 +61,31 @@ export function EditProvider({ children }: { children: React.ReactNode }) {
     return defaultContent;
   });
 
-  // Load from Supabase on mount (authoritative source)
+  // Load from backend on mount (authoritative source)
   useEffect(() => {
-    if (!supabase) return;
-    supabase
-      .from('site_content')
-      .select('data')
-      .eq('id', 1)
-      .single()
-      .then(({ data, error }) => {
-        if (!error && data?.data && Object.keys(data.data).length > 0) {
-          const merged = deepMerge(defaultContent, data.data);
-          setContent(merged);
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch {}
-        }
-        setSupabaseReady(true);
-      });
+    if (!backend) { setBackendReady(true); return; }
+    backend.load().then(data => {
+      if (data && Object.keys(data).length > 0) {
+        const merged = deepMerge(defaultContent, data as Partial<SiteContent>);
+        setContent(merged);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch {}
+      }
+      setBackendReady(true);
+    });
   }, []);
 
-  // Persist to localStorage + debounced Supabase save
+  // Persist to localStorage + debounced backend save
   useEffect(() => {
     if (isFirstLoad.current) { isFirstLoad.current = false; return; }
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(content)); } catch {}
-    if (!supabase) return;
+    if (!backend) return;
 
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSyncStatus('saving');
     saveTimer.current = setTimeout(async () => {
-      const { error } = await supabase
-        .from('site_content')
-        .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
-      setSyncStatus(error ? 'error' : 'saved');
-      if (!error) setTimeout(() => setSyncStatus('idle'), 2000);
+      const ok = await backend.save(content as Record<string, any>);
+      setSyncStatus(ok ? 'saved' : 'error');
+      if (ok) setTimeout(() => setSyncStatus('idle'), 2000);
     }, 1200);
   }, [content]);
 
@@ -105,16 +98,16 @@ export function EditProvider({ children }: { children: React.ReactNode }) {
   const resetContent = useCallback(async () => {
     setContent(defaultContent);
     localStorage.removeItem(STORAGE_KEY);
-    if (supabase) {
+    if (backend) {
       setSyncStatus('saving');
-      await supabase.from('site_content').upsert({ id: 1, data: defaultContent, updated_at: new Date().toISOString() });
-      setSyncStatus('saved');
+      const ok = await backend.save(defaultContent as Record<string, any>);
+      setSyncStatus(ok ? 'saved' : 'error');
       setTimeout(() => setSyncStatus('idle'), 2000);
     }
   }, []);
 
   return (
-    <EditContext.Provider value={{ editMode, content, syncStatus, supabaseReady, toggleEditMode, updateField, resetContent }}>
+    <EditContext.Provider value={{ editMode, content, syncStatus, backendReady, toggleEditMode, updateField, resetContent }}>
       {children}
     </EditContext.Provider>
   );

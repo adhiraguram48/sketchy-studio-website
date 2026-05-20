@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
-import { motion } from 'motion/react';
-import { ArrowUpRight, Instagram } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { C, FloatingOrbs, Squiggle, SectionLabel, Reveal, Callout, DotTrio, NoiseOverlay } from '../components/SketchyUI';
 import { useEdit, EI } from '../context/EditContext';
 import { PageLayout } from '../components/Layout';
@@ -8,6 +9,18 @@ import { PageLayout } from '../components/Layout';
 export default function About() {
   const navigate = useNavigate();
   const { content } = useEdit();
+  const quotes = content.about.quotes ?? [];
+  const [quoteIdx, setQuoteIdx] = useState(0);
+  const [dir, setDir] = useState(1);
+
+  useEffect(() => {
+    if (quotes.length < 2) return;
+    const t = setInterval(() => { setDir(1); setQuoteIdx(i => (i + 1) % quotes.length); }, 4500);
+    return () => clearInterval(t);
+  }, [quotes.length]);
+
+  function prev() { setDir(-1); setQuoteIdx(i => (i - 1 + quotes.length) % quotes.length); }
+  function next() { setDir(1); setQuoteIdx(i => (i + 1) % quotes.length); }
 
   return (
     <PageLayout>
@@ -60,15 +73,55 @@ export default function About() {
 
             <Reveal delay={0.2}>
               <Callout color={C.purple} rotate={-1}>
-                <p style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: '1.5rem', lineHeight: 1.3 }} className="font-black italic mb-4">
-                  "Design should earn its keep. Pretty for its own sake doesn't interest us."
-                </p>
-                <div className="flex items-center gap-2">
-                  <DotTrio colors={[C.pink, C.yellow, C.purple]} />
-                  <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}60` }} className="text-sm">
-                    — Caleb, Founder
-                  </span>
+                <div style={{ minHeight: 120, position: 'relative', overflow: 'hidden' }}>
+                  <AnimatePresence mode="wait" custom={dir}>
+                    {quotes.length > 0 && (
+                      <motion.div
+                        key={quoteIdx}
+                        custom={dir}
+                        initial={{ x: dir * 40, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: dir * -40, opacity: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeInOut' }}
+                      >
+                        <p style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: '1.5rem', lineHeight: 1.3 }} className="font-black italic mb-4">
+                          "{quotes[quoteIdx].text}"
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <DotTrio colors={[C.pink, C.yellow, C.purple]} />
+                          <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}60` }} className="text-sm">
+                            — {quotes[quoteIdx].author}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
+                {quotes.length > 1 && (
+                  <div className="flex items-center gap-3 mt-4">
+                    <button onClick={prev} style={{ color: `${C.cream}50` }} className="hover:text-white transition-colors">
+                      <ChevronLeft size={16} />
+                    </button>
+                    <div className="flex gap-1.5">
+                      {quotes.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => { setDir(i > quoteIdx ? 1 : -1); setQuoteIdx(i); }}
+                          style={{
+                            width: i === quoteIdx ? 20 : 6,
+                            height: 6,
+                            borderRadius: 3,
+                            backgroundColor: i === quoteIdx ? C.purple : `${C.cream}30`,
+                            transition: 'all 0.3s',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <button onClick={next} style={{ color: `${C.cream}50` }} className="hover:text-white transition-colors">
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
               </Callout>
             </Reveal>
           </div>
