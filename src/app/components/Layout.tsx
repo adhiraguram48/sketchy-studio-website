@@ -45,14 +45,14 @@ export function Navigation() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <motion.div
-              whileHover={{ scale: 1.05, rotate: -2 }}
-              whileTap={{ scale: 0.97 }}
+            <motion.img
+              src="/logo.png"
+              alt="The Sketchy Studio"
+              whileHover={{ scale: 1.06, rotate: -2 }}
+              whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              style={{ backgroundColor: 'white', borderRadius: 10, padding: '4px 14px 4px 10px', display: 'flex', alignItems: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.25)' }}
-            >
-              <img src="/logo.png" alt="The Sketchy Studio" style={{ height: 32, width: 'auto', display: 'block' }} />
-            </motion.div>
+              style={{ height: 40, width: 'auto', display: 'block' }}
+            />
           </Link>
 
           {/* Desktop Nav */}
