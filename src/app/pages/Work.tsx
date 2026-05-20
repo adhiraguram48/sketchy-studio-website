@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowUpRight, Plus } from 'lucide-react';
-import { C, NoiseOverlay, Reveal } from '../components/SketchyUI';
+import { C, NoiseOverlay } from '../components/SketchyUI';
 import { useEdit } from '../context/EditContext';
 import { PageLayout } from '../components/Layout';
 import { CaseStudy } from '../data/content';
@@ -17,15 +17,23 @@ function accentFor(cs: CaseStudy): string {
   return C.pink;
 }
 
-// Editorial grid: alternating layout slots per position
-// Pattern: full | wide+narrow | narrow+wide | full...
-const GRID_SPANS = ['md:col-span-12', 'md:col-span-7', 'md:col-span-5', 'md:col-span-5', 'md:col-span-7', 'md:col-span-12'] as const;
-function gridClass(i: number): string {
-  return GRID_SPANS[i % GRID_SPANS.length];
+// Vary image heights across 3 columns for masonry feel
+const IMG_HEIGHTS = [300, 220, 260, 240, 280, 210, 260, 300, 230];
+function imgHeight(i: number) {
+  return IMG_HEIGHTS[i % IMG_HEIGHTS.length];
 }
-function cardHeight(i: number): number {
-  const pattern = [520, 400, 400, 380, 380, 460];
-  return pattern[i % pattern.length];
+
+function SlideUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.65, delay, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export default function Work() {
@@ -65,29 +73,50 @@ export default function Work() {
     <PageLayout>
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
-      <section style={{ backgroundColor: C.void, paddingTop: 130 }} className="pb-16 relative overflow-hidden">
+      <section style={{ backgroundColor: C.void, paddingTop: 140, paddingBottom: 80 }} className="relative overflow-hidden">
         <NoiseOverlay />
 
         {/* Pink accent line */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: C.pink }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, backgroundColor: C.pink }} />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <Reveal>
-            {/* Large number behind */}
-            <div style={{ position: 'absolute', right: 24, top: -20, fontFamily: 'Fraunces, serif', fontSize: 'clamp(8rem, 18vw, 16rem)', fontWeight: 900, color: `${C.cream}06`, lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>
-              {content.caseStudies.length.toString().padStart(2, '0')}
-            </div>
+          {/* Project count — ghost number behind */}
+          <div style={{ position: 'absolute', right: 24, top: -32, fontFamily: 'Fraunces, serif', fontSize: 'clamp(8rem, 18vw, 14rem)', fontWeight: 900, color: `${C.cream}05`, lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>
+            {content.caseStudies.length.toString().padStart(2, '0')}
+          </div>
 
-            <p style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3 }} className="mb-5">
-              Selected Projects
-            </p>
-            <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.88, fontSize: 'clamp(3.5rem, 11vw, 8.5rem)', fontWeight: 900, letterSpacing: '-0.02em' }} className="mb-6">
-              The Work.
-            </h1>
-            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}60`, maxWidth: 480, lineHeight: 1.7, fontSize: '1rem' }}>
-              Brand, web, motion, and social — built for founders and growing businesses who refuse to look like everyone else.
-            </p>
-          </Reveal>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3, marginBottom: 20 }}
+          >
+            Works
+          </motion.p>
+
+          {/* Mixed heading — sorted style */}
+          <motion.h1
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            style={{ lineHeight: 0.88, marginBottom: 24 }}
+          >
+            <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(3.5rem, 10vw, 7.5rem)', fontWeight: 900, letterSpacing: '-0.025em' }}>
+              Work that speaks
+            </span>
+            <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: `${C.cream}40`, fontSize: 'clamp(3.5rem, 10vw, 7.5rem)', fontWeight: 400, letterSpacing: '-0.025em', fontStyle: 'italic' }}>
+              louder than words.
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50`, maxWidth: 480, lineHeight: 1.7, fontSize: '1rem' }}
+          >
+            Brand, web, motion, and social — built for founders and growing businesses who refuse to look like everyone else.
+          </motion.p>
         </div>
       </section>
 
@@ -101,7 +130,7 @@ export default function Work() {
               whileTap={{ scale: 0.95 }}
               style={{
                 backgroundColor: activeFilter === tag ? C.pink : 'transparent',
-                color: activeFilter === tag ? C.void : `${C.cream}60`,
+                color: activeFilter === tag ? C.void : `${C.cream}55`,
                 fontFamily: 'Sora, sans-serif',
                 fontSize: 11,
                 fontWeight: 900,
@@ -109,7 +138,7 @@ export default function Work() {
                 letterSpacing: 1.5,
                 border: activeFilter === tag ? `1px solid ${C.pink}` : `1px solid ${C.surface}`,
                 borderRadius: 100,
-                padding: '6px 16px',
+                padding: '6px 18px',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.2s',
               }}
@@ -130,126 +159,136 @@ export default function Work() {
         </div>
       </div>
 
-      {/* ── WORK GRID ──────────────────────────────────────────────────────── */}
-      <section style={{ backgroundColor: C.void }} className="py-10 pb-24">
+      {/* ── WORK GRID — masonry 3-col, text below image (sorted-style) ─────── */}
+      <section style={{ backgroundColor: C.void }} className="py-12 pb-28">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((project, i) => {
-                const a = accentFor(project);
-                const height = cardHeight(i);
-                const colClass = gridClass(i);
+          <AnimatePresence mode="popLayout">
+            {filtered.length > 0 ? (
+              <motion.div
+                layout
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start"
+              >
+                {filtered.map((project, i) => {
+                  const a = accentFor(project);
+                  const h = imgHeight(i);
 
-                return (
-                  <motion.div
-                    key={project.id}
-                    layout
-                    className={colClass}
-                    initial={{ opacity: 0, y: 32 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.4, delay: i * 0.04 }}
-                  >
+                  return (
                     <motion.div
-                      onClick={() => navigate(`/work/${project.slug}`)}
-                      className="relative overflow-hidden rounded-2xl cursor-pointer group"
-                      style={{ height }}
-                      whileHover="hover"
+                      key={project.id}
+                      layout
+                      initial={{ opacity: 0, y: 32 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.4, delay: i * 0.05 }}
                     >
-                      {/* Cover image */}
-                      {project.coverImage ? (
-                        <motion.img
-                          src={project.coverImage}
-                          alt={project.client}
-                          className="w-full h-full object-cover"
-                          variants={{ hover: { scale: 1.06 } }}
-                          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-                        />
-                      ) : (
-                        <div style={{ backgroundColor: `${a}12`, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontFamily: 'Fraunces, serif', color: `${a}30`, fontSize: 64, fontWeight: 900 }}>?</span>
-                        </div>
-                      )}
+                      <SlideUp delay={i * 0.04}>
+                        <motion.div
+                          onClick={() => navigate(`/work/${project.slug}`)}
+                          className="cursor-pointer group"
+                          whileHover="hov"
+                          style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: C.cardDark }}
+                        >
+                          {/* Image */}
+                          <div style={{ overflow: 'hidden', height: h, position: 'relative' }}>
+                            {project.coverImage ? (
+                              <motion.img
+                                src={project.coverImage}
+                                alt={project.client}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                variants={{ hov: { scale: 1.06 } }}
+                                transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+                              />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', backgroundColor: `${a}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontFamily: 'Fraunces, serif', color: `${a}25`, fontSize: 48, fontWeight: 900 }}>?</span>
+                              </div>
+                            )}
 
-                      {/* Gradient overlay */}
-                      <div style={{ background: `linear-gradient(to top, ${C.void}F5 0%, ${C.void}70 35%, transparent 65%)` }} className="absolute inset-0" />
+                            {/* Accent line slides in on hover */}
+                            <motion.div
+                              variants={{ hov: { scaleX: 1 } }}
+                              initial={{ scaleX: 0 }}
+                              style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: a, transformOrigin: 'left' }}
+                              transition={{ duration: 0.3 }}
+                            />
 
-                      {/* Top accent on hover */}
-                      <motion.div
-                        variants={{ hover: { scaleX: 1, opacity: 1 } }}
-                        initial={{ scaleX: 0, opacity: 0 }}
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: a, transformOrigin: 'left' }}
-                        transition={{ duration: 0.3 }}
-                      />
+                            {/* Year pill */}
+                            <div style={{ position: 'absolute', top: 12, left: 12, backgroundColor: `${C.void}CC`, color: `${C.cream}55`, fontFamily: 'Sora, sans-serif', fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, padding: '4px 10px', borderRadius: 100, backdropFilter: 'blur(8px)' }}>
+                              {project.year}
+                            </div>
+                          </div>
 
-                      {/* Year pill — top left */}
-                      <div style={{ position: 'absolute', top: 16, left: 16, backgroundColor: `${C.void}CC`, color: `${C.cream}60`, fontFamily: 'Sora, sans-serif', fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5 }} className="px-3 py-1 rounded-full backdrop-blur-sm">
-                        {project.year}
-                      </div>
-
-                      {/* Arrow button — top right, appears on hover */}
-                      <motion.div
-                        variants={{ hover: { opacity: 1, scale: 1, rotate: 0 } }}
-                        initial={{ opacity: 0, scale: 0.6, rotate: -45 }}
-                        transition={{ duration: 0.2 }}
-                        style={{ position: 'absolute', top: 12, right: 12, backgroundColor: a, color: C.void, borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      >
-                        <ArrowUpRight size={16} />
-                      </motion.div>
-
-                      {/* Bottom text */}
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 24px 24px' }}>
-                        <div className="flex flex-wrap gap-1.5 mb-2.5">
-                          {project.tags.map(tag => (
-                            <span key={tag} style={{ backgroundColor: `${a}20`, color: a, fontFamily: 'Sora, sans-serif', fontSize: 9, fontWeight: 900, border: `1px solid ${a}35`, textTransform: 'uppercase', letterSpacing: 1.5 }} className="px-2 py-0.5 rounded-full">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, lineHeight: 0.92, letterSpacing: '-0.01em', fontSize: i === 0 || i % 6 === 5 ? 'clamp(1.6rem, 3vw, 2.4rem)' : '1.5rem' }} className="font-black mb-1.5">
-                          {project.client}
-                        </h3>
-                        <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}55`, fontSize: 12, lineHeight: 1.5 }}>
-                          {project.tagline}
-                        </p>
-                      </div>
+                          {/* Text below image — sorted style */}
+                          <div style={{ padding: '16px 20px 20px' }}>
+                            <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+                              {project.tags.map(tag => (
+                                <span key={tag} style={{ color: a, fontFamily: 'Sora, sans-serif', fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                              <div>
+                                <h3 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: '1.25rem', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.01em', marginBottom: 4 }}>
+                                  {project.client}
+                                </h3>
+                                <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}45`, fontSize: 12, lineHeight: 1.5 }}>
+                                  {project.tagline}
+                                </p>
+                              </div>
+                              <motion.div
+                                variants={{ hov: { opacity: 1, scale: 1, rotate: 0 } }}
+                                initial={{ opacity: 0, scale: 0.6, rotate: -45 }}
+                                transition={{ duration: 0.2 }}
+                                style={{ backgroundColor: a, color: C.void, borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}
+                              >
+                                <ArrowUpRight size={14} />
+                              </motion.div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </SlideUp>
                     </motion.div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
-
-          {filtered.length === 0 && (
-            <div className="text-center py-32">
-              <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}30`, fontSize: 14 }}>No projects in this category yet.</p>
-            </div>
-          )}
+                  );
+                })}
+              </motion.div>
+            ) : (
+              <div className="text-center py-32">
+                <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}28`, fontSize: 14 }}>
+                  No projects in this category yet.
+                </p>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
       {/* ── CTA ────────────────────────────────────────────────────────────── */}
-      <section style={{ backgroundColor: C.pink }} className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-          <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(8rem, 22vw, 18rem)', fontWeight: 900, color: `${C.void}10`, lineHeight: 1, userSelect: 'none', whiteSpace: 'nowrap' }}>
-            LET'S BUILD
-          </span>
-        </div>
+      <section style={{ backgroundColor: C.cream, padding: '96px 0' }} className="relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <Reveal>
-            <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.void, lineHeight: 0.9, fontSize: 'clamp(2.5rem, 6vw, 5rem)', letterSpacing: '-0.02em' }} className="font-black mb-6">
-              Have a project?<br />Let's talk.
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7 }}
+          >
+            <h2 style={{ lineHeight: 0.9, marginBottom: 40 }}>
+              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.02em' }}>
+                Have a project?
+              </span>
+              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: `${C.void}50`, fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 400, letterSpacing: '-0.02em', fontStyle: 'italic' }}>
+                Let's talk.
+              </span>
             </h2>
             <motion.button
               onClick={() => navigate('/contact')}
               whileHover={{ scale: 1.05, y: -3 }}
               whileTap={{ scale: 0.97 }}
-              style={{ backgroundColor: C.void, color: C.cream, fontFamily: 'Sora, sans-serif' }}
-              className="px-8 py-4 rounded-full font-black text-sm uppercase tracking-widest shadow-2xl"
+              style={{ backgroundColor: C.void, color: C.cream, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2, padding: '16px 40px', borderRadius: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.2)' }}
             >
               Get in Touch
             </motion.button>
-          </Reveal>
+          </motion.div>
         </div>
       </section>
 
