@@ -96,7 +96,7 @@ function PinnedWork({ projects, navigate }: { projects: CaseStudy[]; navigate: (
         <div style={{ position: 'absolute', right: 32, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 8, zIndex: 20 }}>
           {projects.map((_, i) => (
             <motion.div key={i}
-              animate={{ height: i === activeIdx ? 32 : 10, backgroundColor: i === activeIdx ? C.pink : 'rgba(255,255,255,0.22)' }}
+              animate={{ height: i === activeIdx ? 32 : 10, backgroundColor: i === activeIdx ? C.purple : 'rgba(255,255,255,0.22)' }}
               transition={{ duration: 0.35 }}
               style={{ width: 2, borderRadius: 1 }}
             />
@@ -174,12 +174,12 @@ function WorkAutoGrid({ projects, navigate }: { projects: CaseStudy[]; navigate:
       {/* Header row */}
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '72px 48px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <p style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 10 }}>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 10 }}>
             Our Work
           </p>
-          <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1 }}>
+          <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1 }}>
             {projects.length} brands.{' '}
-            <em style={{ fontWeight: 400, fontStyle: 'italic', color: `${C.cream}35` }}>Every one different.</em>
+            <em style={{ fontWeight: 400, fontStyle: 'italic', color: 'rgba(255,255,255,0.42)' }}>Every one different.</em>
           </h2>
         </div>
         <motion.button onClick={() => navigate('/work')} whileHover={{ x: 5 }}
@@ -400,7 +400,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
         {/* Squiggle */}
         <motion.div initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: 1, opacity: 1 }} transition={{ delay: 0.95, duration: 0.65 }} style={{ transformOrigin: 'center', marginBottom: 28 }}>
           <svg width="200" height="10" viewBox="0 0 200 10" style={{ display: 'block', margin: '0 auto' }}>
-            <path d="M4,6 Q32,1 60,6 T115,6 T170,6 T200,6" stroke={C.pink} strokeWidth={4.5} strokeLinecap="round" fill="none" />
+            <path d="M4,6 Q32,1 60,6 T115,6 T170,6 T200,6" stroke={C.purple} strokeWidth={4.5} strokeLinecap="round" fill="none" />
           </svg>
         </motion.div>
 
@@ -417,7 +417,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
             whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }} onClick={() => navigate('/work')}
             animate={{ boxShadow: [`0 0 20px ${C.pink}22`, `0 0 52px ${C.pink}52`, `0 0 20px ${C.pink}22`] }}
             transition={{ boxShadow: { duration: 2.8, repeat: Infinity, ease: 'easeInOut' } } as any}
-            style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, display: 'flex', alignItems: 'center', gap: 8, border: 'none', cursor: 'pointer' }}
+            style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, display: 'flex', alignItems: 'center', gap: 8, border: 'none', cursor: 'pointer' }}
           >
             See Our Work <ArrowRight size={14} />
           </motion.button>
@@ -434,7 +434,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
 
 /* ─── Stats — proper section below hero, cream bg for clear split ────────────── */
 function StatsSection({ content }: { content: SiteContent }) {
-  const colors = [C.pink, C.purple, C.cyan, C.yellow];
+  const colors = [C.purple, C.mustard, C.pink, C.mint];
   return (
     <section style={{ backgroundColor: C.cream, borderTop: `4px solid ${C.void}`, borderBottom: `4px solid ${C.void}` }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '52px 48px', display: 'flex', flexWrap: 'wrap', gap: '28px 80px', alignItems: 'center', justifyContent: 'center' }}>
@@ -568,8 +568,15 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
           )}
         </h2>
 
-        <Reveal delay={0.15}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 36, flexWrap: 'wrap' }}>
+        {/* Body copy */}
+        <Reveal delay={0.22}>
+          <ET path="home.statementBody" as="p"
+            style={{ fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.6)', fontSize: '1rem', fontWeight: 300, lineHeight: 1.85, maxWidth: 560, marginBottom: 40 }}
+          />
+        </Reveal>
+
+        <Reveal delay={0.32}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
             <motion.button onClick={() => navigate('/work')}
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
@@ -595,12 +602,12 @@ function PinnedWorkSection({ featured, navigate, content }: { featured: CaseStud
         </div>
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Reveal>
-            <p style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Deep Dives</p>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Deep Dives</p>
             <h2>
-              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>
+              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>
                 The work speaks
               </span>
-              <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.cream}35`, fontSize: 'clamp(1.6rem, 4vw, 3.4rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+              <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.42)', fontSize: 'clamp(1.6rem, 4vw, 3.4rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
                 for itself.
               </span>
             </h2>
@@ -679,8 +686,8 @@ function TestimonialsSection({ content }: { navigate: (p: string) => void; conte
         <Reveal>
           <p style={{ fontFamily: 'Sora, sans-serif', color: C.cyan, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Client Love</p>
           <h2 style={{ marginBottom: 48 }}>
-            <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>What they said</span>
-            <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.cream}30`, fontSize: 'clamp(1.6rem, 3.8vw, 3.2rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>after.</span>
+            <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>What they said</span>
+            <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.42)', fontSize: 'clamp(1.6rem, 3.8vw, 3.2rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>after.</span>
           </h2>
         </Reveal>
 

@@ -74,6 +74,7 @@ export interface SiteContent {
     heroSub: string;
     statementLine1: string;
     statementLine2: string;
+    statementBody: string;
     aboutTeaser: string;
     aboutTeaserSub: string;
     ctaHeadline: string;
@@ -134,6 +135,7 @@ export const defaultContent: SiteContent = {
     heroSub: "Brand identity, web design, motion, and social — built for founders who refuse to look like everyone else.",
     statementLine1: "We don't make things look nice.",
     statementLine2: "We make them impossible to ignore.",
+    statementBody: "Great design isn't decoration — it's infrastructure. A brand that looks right opens doors, charges more, and builds trust before a word is spoken.",
     aboutTeaser: "We're a design studio built on one belief: your brand should work as hard as you do.",
     aboutTeaserSub: "The Sketchy Studio is a full-service creative agency based in Bangalore — building brands, websites, videos, and social strategies for businesses that want to stand out. Mystery, meaning, and mischief in every pixel.",
     ctaHeadline: "Got a project? Let's build it.",

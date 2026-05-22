@@ -63,13 +63,13 @@ export function Navigation() {
                 <Link key={link.href} to={link.href}>
                   <motion.span
                     whileHover={{ y: -1 }}
-                    style={{ fontFamily: 'Sora, sans-serif', color: active ? C.pink : `${C.cream}CC` }}
+                    style={{ fontFamily: 'Sora, sans-serif', color: active ? C.purple : 'rgba(255,255,255,0.8)' }}
                     className="px-4 py-2 text-sm font-medium rounded-full transition-colors block relative"
                   >
                     {active && (
                       <motion.span
                         layoutId="nav-indicator"
-                        style={{ backgroundColor: `${C.pink}20` }}
+                        style={{ backgroundColor: `${C.purple}22` }}
                         className="absolute inset-0 rounded-full"
                       />
                     )}
@@ -86,7 +86,7 @@ export function Navigation() {
               onClick={() => navigate('/contact')}
               whileHover={{ scale: 1.05, y: -1 }}
               whileTap={{ scale: 0.97 }}
-              style={{ backgroundColor: C.pink, fontFamily: 'Sora, sans-serif', color: C.void }}
+              style={{ backgroundColor: C.purple, fontFamily: 'Sora, sans-serif', color: '#ffffff' }}
               className="px-5 py-2 rounded-full text-sm font-black uppercase tracking-wide"
             >
               Start a Project
@@ -125,7 +125,7 @@ export function Navigation() {
                     transition={{ delay: i * 0.06 }}
                     style={{
                       fontFamily: 'Fraunces, Georgia, serif',
-                      color: location.pathname === link.href ? C.pink : C.cream,
+                      color: location.pathname === link.href ? C.purple : '#ffffff',
                     }}
                     className="text-4xl font-black py-2 border-b border-white/10"
                   >
@@ -138,7 +138,7 @@ export function Navigation() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 onClick={() => navigate('/contact')}
-                style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif' }}
+                style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif' }}
                 className="mt-6 px-6 py-3 rounded-full font-black uppercase tracking-wide text-center"
               >
                 Start a Project
