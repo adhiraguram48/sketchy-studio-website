@@ -213,7 +213,7 @@ export function Footer() {
               <a href={`tel:${content.nav.phone}`} style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}80` }} className="text-sm hover:text-white transition-colors flex items-center gap-2">
                 <Phone size={14} /> {content.nav.phone}
               </a>
-              <motion.button onClick={() => navigate('/contact')} whileHover={{ x: 4 }} style={{ color: C.pink, fontFamily: 'Sora, sans-serif' }} className="text-sm font-black flex items-center gap-1 mt-2">
+              <motion.button onClick={() => navigate('/contact')} whileHover={{ x: 4 }} style={{ color: C.purple, fontFamily: 'Sora, sans-serif' }} className="text-sm font-black flex items-center gap-1 mt-2">
                 Start a Project <ArrowUpRight size={14} />
               </motion.button>
             </div>
@@ -229,6 +229,23 @@ export function Footer() {
           </p>
         </div>
       </div>
+
+      {/* ── Cat — tiny easter egg, bottom-right corner, facing left ── */}
+      <motion.div
+        style={{ position: 'absolute', bottom: 0, right: 24, width: 96, pointerEvents: 'none', userSelect: 'none', zIndex: 2 }}
+        initial={{ y: 30, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 0.7 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.img
+          src="https://framerusercontent.com/images/MaPnGXPaPK2dZwRClzHmX6NiHE.png?scale-down-to=256"
+          alt=""
+          animate={{ y: [0, -7, 0] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ width: '100%', height: 'auto', display: 'block', scaleX: -1, filter: 'drop-shadow(0 0 10px rgba(155,92,232,0.28))' }}
+        />
+      </motion.div>
     </footer>
   );
 }

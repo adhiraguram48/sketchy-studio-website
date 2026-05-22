@@ -415,7 +415,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
           style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <motion.button
             whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }} onClick={() => navigate('/work')}
-            animate={{ boxShadow: [`0 0 20px ${C.pink}22`, `0 0 52px ${C.pink}52`, `0 0 20px ${C.pink}22`] }}
+            animate={{ boxShadow: [`0 0 20px ${C.purple}30`, `0 0 52px ${C.purple}60`, `0 0 20px ${C.purple}30`] }}
             transition={{ boxShadow: { duration: 2.8, repeat: Infinity, ease: 'easeInOut' } } as any}
             style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, display: 'flex', alignItems: 'center', gap: 8, border: 'none', cursor: 'pointer' }}
           >
@@ -425,6 +425,43 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
             style={{ backgroundColor: 'transparent', color: C.cream, border: `1.5px solid ${C.cream}50`, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, cursor: 'pointer' }}>
             Start a Project
           </motion.button>
+        </motion.div>
+      </motion.div>
+
+      {/* ── Cat mascot — slides up from bottom-right, floats, glows ── */}
+      <motion.div
+        style={{ position: 'absolute', bottom: 0, right: '5%', zIndex: 4, width: 170, pointerEvents: 'none', userSelect: 'none' }}
+        initial={{ y: 140, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 1.8, duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.div
+          animate={{ y: [0, -14, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 3.2 }}
+          style={{ position: 'relative' }}
+        >
+          <motion.img
+            src="https://framerusercontent.com/images/MaPnGXPaPK2dZwRClzHmX6NiHE.png?scale-down-to=512"
+            alt="The Sketchy Studio cat"
+            whileHover={{ scale: 1.06, filter: 'drop-shadow(0 0 44px rgba(155,92,232,0.75)) drop-shadow(0 0 18px rgba(155,92,232,0.5))' }}
+            style={{ width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 0 28px rgba(155,92,232,0.55))' }}
+          />
+          {/* Sparkles around the cat */}
+          <motion.span
+            animate={{ opacity: [0, 1, 0], scale: [0.4, 1.3, 0.4], rotate: [0, 180, 360] }}
+            transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 2.8, ease: 'easeInOut' }}
+            style={{ position: 'absolute', top: '12%', right: -20, fontFamily: 'serif', fontSize: 16, color: C.purple, lineHeight: 1 }}
+          >✦</motion.span>
+          <motion.span
+            animate={{ opacity: [0, 0.9, 0], scale: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 4.5, ease: 'easeInOut', delay: 1.2 }}
+            style={{ position: 'absolute', top: '4%', left: -14, fontFamily: 'serif', fontSize: 11, color: C.mustard, lineHeight: 1 }}
+          >✦</motion.span>
+          <motion.span
+            animate={{ opacity: [0, 0.7, 0], scale: [0.5, 1.1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 6, ease: 'easeInOut', delay: 3 }}
+            style={{ position: 'absolute', top: '28%', right: -10, fontFamily: 'serif', fontSize: 9, color: C.mint, lineHeight: 1 }}
+          >✦</motion.span>
         </motion.div>
       </motion.div>
 
