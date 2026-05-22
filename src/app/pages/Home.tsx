@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'motion/react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { C, CountUp } from '../components/SketchyUI';
@@ -174,7 +174,7 @@ function WorkAutoGrid({ projects, navigate }: { projects: CaseStudy[]; navigate:
       {/* Header row */}
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '72px 48px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 10 }}>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: C.mint, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 10 }}>
             Our Work
           </p>
           <h2 style={{ fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1 }}>
@@ -417,7 +417,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
             whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }} onClick={() => navigate('/work')}
             animate={{ boxShadow: [`0 0 20px ${C.purple}30`, `0 0 52px ${C.purple}60`, `0 0 20px ${C.purple}30`] }}
             transition={{ boxShadow: { duration: 2.8, repeat: Infinity, ease: 'easeInOut' } } as any}
-            style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, display: 'flex', alignItems: 'center', gap: 8, border: 'none', cursor: 'pointer' }}
+            style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.pink} 100%)`, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, display: 'flex', alignItems: 'center', gap: 8, border: 'none', cursor: 'pointer' }}
           >
             See Our Work <ArrowRight size={14} />
           </motion.button>
@@ -471,7 +471,12 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
 
 /* ─── Stats — proper section below hero, cream bg for clear split ────────────── */
 function StatsSection({ content }: { content: SiteContent }) {
-  const colors = [C.purple, C.mustard, C.pink, C.mint];
+  const gradients = [
+    `linear-gradient(135deg, ${C.purple}, ${C.pink})`,
+    `linear-gradient(135deg, ${C.mustard}, ${C.lime})`,
+    `linear-gradient(135deg, ${C.pink}, ${C.mint})`,
+    `linear-gradient(135deg, ${C.mint}, ${C.purple})`,
+  ];
   return (
     <section style={{ backgroundColor: C.cream, borderTop: `4px solid ${C.void}`, borderBottom: `4px solid ${C.void}` }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '52px 48px', display: 'flex', flexWrap: 'wrap', gap: '28px 80px', alignItems: 'center', justifyContent: 'center' }}>
@@ -489,7 +494,7 @@ function StatsSection({ content }: { content: SiteContent }) {
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.12 + 0.1, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
-              style={{ fontFamily: 'Fraunces, Georgia, serif', color: colors[i % 4], fontSize: 'clamp(2.8rem, 5vw, 4.5rem)', fontWeight: 900, lineHeight: 1 }}
+              style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.8rem, 5vw, 4.5rem)', fontWeight: 900, lineHeight: 1, background: gradients[i % 4], WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' } as React.CSSProperties}
             >
               <CountUp value={stat.value} />
             </motion.div>
@@ -503,6 +508,8 @@ function StatsSection({ content }: { content: SiteContent }) {
   );
 }
 
+const MARQUEE_ACCENTS = [C.purple, C.pink, C.mustard, C.mint, C.purple, C.pink];
+
 function ServicesMarquee() {
   return (
     <div style={{ backgroundColor: C.cream, borderBottom: `2px solid ${C.void}`, padding: '16px 0', overflow: 'hidden' }}>
@@ -513,7 +520,7 @@ function ServicesMarquee() {
           {[...SERVICES, ...SERVICES].map((s, i) => (
             <span key={i} style={{ display: 'inline-flex', alignItems: 'center' }}>
               <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(1rem, 2.2vw, 1.5rem)', fontWeight: 900, color: C.void, letterSpacing: '-0.01em', padding: '0 28px' }}>{s}</span>
-              <span style={{ color: C.pink, fontSize: 18 }}>✦</span>
+              <span style={{ color: MARQUEE_ACCENTS[i % MARQUEE_ACCENTS.length], fontSize: 18 }}>✦</span>
             </span>
           ))}
         </motion.div>
@@ -535,7 +542,7 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
       <motion.div
         initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: 'absolute', left: 0, top: '15%', bottom: '15%', width: 4, backgroundColor: C.purple, transformOrigin: 'top', zIndex: 2 }}
+        style={{ position: 'absolute', left: 0, top: '15%', bottom: '15%', width: 4, background: `linear-gradient(to bottom, ${C.purple}, ${C.pink})`, transformOrigin: 'top', zIndex: 2 }}
       />
 
       {/* Floating ✦ accents */}
@@ -565,15 +572,16 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
               style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 6 }}
             />
           ) : (
-            <div style={{ display: 'block', marginBottom: 6 }}>
+            /* font styles on the DIV so inline-block spans size to word width correctly */
+            <div style={{ display: 'block', marginBottom: 6, fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.15 }}>
               {words1.map((word, i) => (
                 <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'bottom' }}>
                   <motion.span
-                    style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.05 }}
+                    style={{ display: 'block' }}
                     initial={{ y: '115%' }}
                     whileInView={{ y: '0%' }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ delay: i * 0.07, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ delay: i * 0.06, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   >
                     {word}
                   </motion.span>
@@ -587,15 +595,15 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
               style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.65)', letterSpacing: '-0.01em', lineHeight: 1.2 }}
             />
           ) : (
-            <div style={{ display: 'block' }}>
+            <div style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.65)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
               {words2.map((word, i) => (
                 <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'bottom' }}>
                   <motion.span
-                    style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.65)', letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                    style={{ display: 'block' }}
                     initial={{ y: '115%' }}
                     whileInView={{ y: '0%' }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ delay: words1.length * 0.07 + i * 0.07, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ delay: words1.length * 0.06 + i * 0.06, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   >
                     {word}
                   </motion.span>
@@ -617,7 +625,7 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
             <motion.button onClick={() => navigate('/work')}
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
+              style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.pink} 100%)`, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
               See the work <ArrowUpRight size={13} />
             </motion.button>
             <span style={{ fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.35)', fontSize: 12, fontWeight: 700 }}>
@@ -639,7 +647,7 @@ function PinnedWorkSection({ featured, navigate, content }: { featured: CaseStud
         </div>
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Reveal>
-            <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Deep Dives</p>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: C.mustard, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Deep Dives</p>
             <h2>
               <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>
                 The work speaks
@@ -721,7 +729,7 @@ function TestimonialsSection({ content }: { navigate: (p: string) => void; conte
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 1 }}>
         <Reveal>
-          <p style={{ fontFamily: 'Sora, sans-serif', color: C.cyan, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Client Love</p>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: C.lime, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Client Love</p>
           <h2 style={{ marginBottom: 48 }}>
             <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>What they said</span>
             <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.42)', fontSize: 'clamp(1.6rem, 3.8vw, 3.2rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>after.</span>

@@ -86,7 +86,7 @@ export function Navigation() {
               onClick={() => navigate('/contact')}
               whileHover={{ scale: 1.05, y: -1 }}
               whileTap={{ scale: 0.97 }}
-              style={{ backgroundColor: C.purple, fontFamily: 'Sora, sans-serif', color: '#ffffff' }}
+              style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.pink} 100%)`, fontFamily: 'Sora, sans-serif', color: '#ffffff' }}
               className="px-5 py-2 rounded-full text-sm font-black uppercase tracking-wide"
             >
               Start a Project
@@ -138,7 +138,7 @@ export function Navigation() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 onClick={() => navigate('/contact')}
-                style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif' }}
+                style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.pink} 100%)`, color: '#ffffff', fontFamily: 'Sora, sans-serif' }}
                 className="mt-6 px-6 py-3 rounded-full font-black uppercase tracking-wide text-center"
               >
                 Start a Project
