@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'motion/react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { C, CountUp } from '../components/SketchyUI';
-import { useEdit, EI } from '../context/EditContext';
+import { useEdit, EI, ET } from '../context/EditContext';
 import { PageLayout } from '../components/Layout';
 import { CaseStudy, HomeSectionConfig, SiteContent } from '../data/content';
 
@@ -382,7 +382,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
         </motion.div>
 
         {/* Word-by-word headline */}
-        <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(3.5rem, 11vw, 9.5rem)', lineHeight: 1, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 20 }}>
+        <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2.6rem, 6.5vw, 5.5rem)', lineHeight: 1.05, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 20 }}>
           {headlineWords.map((word, i) => (
             <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.2em', verticalAlign: 'bottom' }}>
               <motion.span
@@ -486,22 +486,102 @@ function ServicesMarquee() {
 }
 
 function Statement({ navigate, content }: { navigate: (p: string) => void; content: SiteContent }) {
+  const { editMode } = useEdit();
+  const line1 = content.home.statementLine1 ?? "We don't make things look nice.";
+  const line2 = content.home.statementLine2 ?? "We make them impossible to ignore.";
+  const words1 = line1.split(' ');
+  const words2 = line2.split(' ');
+
   return (
-    <section style={{ backgroundColor: C.pink, padding: '80px 48px', overflow: 'hidden' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+    <section style={{ backgroundColor: C.void, padding: '108px 48px', overflow: 'hidden', position: 'relative' }}>
+      {/* Large ghost number — depth layer */}
+      <div style={{ position: 'absolute', right: -24, top: '50%', transform: 'translateY(-50%)', fontFamily: 'Fraunces, serif', fontSize: 'clamp(16rem, 28vw, 26rem)', fontWeight: 900, color: `${C.cream}03`, lineHeight: 1, userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
+        TS
+      </div>
+
+      {/* Pink accent bar — left edge */}
+      <motion.div
+        initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        style={{ position: 'absolute', left: 0, top: '15%', bottom: '15%', width: 4, backgroundColor: C.pink, transformOrigin: 'top', zIndex: 2 }}
+      />
+
+      {/* Floating ✦ accents */}
+      <motion.div
+        animate={{ rotate: [0, 360], opacity: [0.12, 0.28, 0.12] }}
+        transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', top: '12%', right: '6%', fontFamily: 'serif', fontSize: 96, color: C.pink, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', zIndex: 1 }}
+      >✦</motion.div>
+      <motion.div
+        animate={{ rotate: [0, -360], opacity: [0.06, 0.14, 0.06] }}
+        transition={{ duration: 42, repeat: Infinity, ease: 'linear', delay: 8 }}
+        style={{ position: 'absolute', bottom: '10%', left: '8%', fontFamily: 'serif', fontSize: 52, color: C.purple, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', zIndex: 1 }}
+      >✦</motion.div>
+
+      <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 2, paddingLeft: 20 }}>
+        {/* Label */}
         <Reveal>
-          <p style={{ fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(1.8rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.15, maxWidth: 780 }}>
-            We don't make things look nice.{' '}
-            <em style={{ fontStyle: 'italic', fontWeight: 400 }}>We make them impossible to ignore.</em>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 28 }}>
+            The Belief
           </p>
         </Reveal>
+
+        <h2 style={{ marginBottom: 40 }}>
+          {/* ── Line 1 — Fraunces serif bold, cream ── */}
+          {editMode ? (
+            <ET path="home.statementLine1" as="div"
+              style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: C.cream, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 6 }}
+            />
+          ) : (
+            <div style={{ display: 'block', marginBottom: 6 }}>
+              {words1.map((word, i) => (
+                <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'bottom' }}>
+                  <motion.span
+                    style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: C.cream, letterSpacing: '-0.025em', lineHeight: 1.05 }}
+                    initial={{ y: '115%' }}
+                    whileInView={{ y: '0%' }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.07, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {word}
+                  </motion.span>
+                </span>
+              ))}
+            </div>
+          )}
+          {/* ── Line 2 — Sora light italic, muted ── */}
+          {editMode ? (
+            <ET path="home.statementLine2" as="div"
+              style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: `${C.cream}50`, letterSpacing: '-0.01em', lineHeight: 1.2 }}
+            />
+          ) : (
+            <div style={{ display: 'block' }}>
+              {words2.map((word, i) => (
+                <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'bottom' }}>
+                  <motion.span
+                    style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: `${C.cream}55`, letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                    initial={{ y: '115%' }}
+                    whileInView={{ y: '0%' }}
+                    viewport={{ once: true }}
+                    transition={{ delay: words1.length * 0.07 + i * 0.07, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {word}
+                  </motion.span>
+                </span>
+              ))}
+            </div>
+          )}
+        </h2>
+
         <Reveal delay={0.15}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 36, flexWrap: 'wrap' }}>
-            <motion.button onClick={() => navigate('/work')} whileHover={{ scale: 1.04, y: -2 }}
-              style={{ backgroundColor: C.void, color: C.cream, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2, padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
+            <motion.button onClick={() => navigate('/work')}
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
               See the work <ArrowUpRight size={13} />
             </motion.button>
-            <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}50`, fontSize: 12, fontWeight: 700 }}>
+            <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}30`, fontSize: 12, fontWeight: 700 }}>
               {content.caseStudies.length}+ brands built
             </span>
           </div>
@@ -525,7 +605,7 @@ function PinnedWorkSection({ featured, navigate, content }: { featured: CaseStud
               <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>
                 The work speaks
               </span>
-              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: `${C.cream}35`, fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 400, letterSpacing: '-0.025em', fontStyle: 'italic', lineHeight: 1.05 }}>
+              <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.cream}35`, fontSize: 'clamp(1.6rem, 4vw, 3.4rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
                 for itself.
               </span>
             </h2>
@@ -547,10 +627,11 @@ function AboutTeaser({ navigate, content }: { navigate: (p: string) => void; con
             <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 24 }}>About the Studio</p>
             <h2 style={{ marginBottom: 32 }}>
               <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>
-                Design that earns
+                Design that earns{' '}
+                <span style={{ color: C.purple, fontStyle: 'italic', fontWeight: 400 }}>its keep.</span>
               </span>
-              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.purple, fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 400, letterSpacing: '-0.025em', fontStyle: 'italic', lineHeight: 1.05 }}>
-                its keep.
+              <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.void}50`, fontSize: 'clamp(1.2rem, 2.5vw, 2rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.3 }}>
+                No fluff. Just results.
               </span>
             </h2>
             <div style={{ display: 'flex', gap: 16, marginBottom: 36 }}>
@@ -604,7 +685,7 @@ function TestimonialsSection({ content }: { navigate: (p: string) => void; conte
           <p style={{ fontFamily: 'Sora, sans-serif', color: C.cyan, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 3.5, marginBottom: 20 }}>Client Love</p>
           <h2 style={{ marginBottom: 48 }}>
             <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.cream, fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.05 }}>What they said</span>
-            <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: `${C.cream}30`, fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 400, letterSpacing: '-0.025em', fontStyle: 'italic', lineHeight: 1.05 }}>after.</span>
+            <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.cream}30`, fontSize: 'clamp(1.6rem, 3.8vw, 3.2rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.01em', lineHeight: 1.2 }}>after.</span>
           </h2>
         </Reveal>
 
@@ -646,6 +727,10 @@ function TestimonialsSection({ content }: { navigate: (p: string) => void; conte
 }
 
 function CTASection({ navigate, content }: { navigate: (p: string) => void; content: SiteContent }) {
+  const ctaIdx = content.home.ctaHeadline.indexOf('?');
+  const ctaLine1 = ctaIdx >= 0 ? content.home.ctaHeadline.slice(0, ctaIdx + 1) : content.home.ctaHeadline;
+  const ctaLine2 = ctaIdx >= 0 ? content.home.ctaHeadline.slice(ctaIdx + 1).trim() : '';
+
   return (
     <section style={{ backgroundColor: C.pink, padding: '108px 48px', overflow: 'hidden', position: 'relative' }}>
       {/* Floating micro-elements */}
@@ -653,14 +738,21 @@ function CTASection({ navigate, content }: { navigate: (p: string) => void; cont
         style={{ position: 'absolute', top: '20%', right: '8%', width: 64, height: 64, borderRadius: 14, backgroundColor: `${C.void}14`, border: `1px solid ${C.void}20`, pointerEvents: 'none' }} />
       <motion.div animate={{ y: [0, 16, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
         style={{ position: 'absolute', bottom: '25%', left: '6%', width: 40, height: 40, borderRadius: '50%', backgroundColor: `${C.void}10`, border: `1px solid ${C.void}18`, pointerEvents: 'none' }} />
+      <motion.div animate={{ rotate: [0, 360], opacity: [0.05, 0.14, 0.05] }} transition={{ duration: 32, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', bottom: '12%', right: '15%', fontFamily: 'serif', fontSize: 96, color: C.void, lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>✦</motion.div>
 
       <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end">
           <Reveal from="left">
-            <h2>
-              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1 }}>
-                {content.home.ctaHeadline}
+            <h2 style={{ marginBottom: 0 }}>
+              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(2.8rem, 6.5vw, 6rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05 }}>
+                {ctaLine1}
               </span>
+              {ctaLine2 && (
+                <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.void}72`, fontSize: 'clamp(1.6rem, 3.8vw, 3.4rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
+                  {ctaLine2}
+                </span>
+              )}
             </h2>
           </Reveal>
           <Reveal from="right" delay={0.12}>
