@@ -2,14 +2,19 @@ import { motion, useMotionValue, useTransform, useInView, useScroll, useSpring }
 import { useRef, useEffect, useState } from 'react';
 
 // Brand colors
+// Primary: purple (#9B5CE8) — the logo color, dominant accent
+// Supporting accents (same energy/intensity): pink, mint, mustard, lime
 export const C = {
-  pink: '#FF6B9D',
-  yellow: '#FFE500',
-  cyan: '#00F5D4',
-  purple: '#9B5CE8',
-  void: '#0D0B10',
-  cream: '#FDFCFE',
-  cardDark: '#1C1926',
+  purple: '#9B5CE8',   // PRIMARY — logo color
+  pink:   '#FF6B9D',
+  mint:   '#96FDFF',
+  mustard:'#FFDB58',
+  lime:   '#A0FFA5',
+  cyan:   '#00F5D4',   // legacy alias
+  yellow: '#FFE500',   // legacy alias
+  void:    '#0D0B10',
+  cream:   '#FDFCFE',
+  cardDark:'#1C1926',
   surface: '#2A2733',
 };
 

@@ -494,53 +494,48 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
 
   return (
     <section style={{ backgroundColor: C.void, padding: '108px 48px', overflow: 'hidden', position: 'relative' }}>
-      {/* Large ghost number — depth layer */}
-      <div style={{ position: 'absolute', right: -24, top: '50%', transform: 'translateY(-50%)', fontFamily: 'Fraunces, serif', fontSize: 'clamp(16rem, 28vw, 26rem)', fontWeight: 900, color: `${C.cream}03`, lineHeight: 1, userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
-        TS
-      </div>
-
-      {/* Pink accent bar — left edge */}
+      {/* Purple accent bar — left edge */}
       <motion.div
         initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: 'absolute', left: 0, top: '15%', bottom: '15%', width: 4, backgroundColor: C.pink, transformOrigin: 'top', zIndex: 2 }}
+        style={{ position: 'absolute', left: 0, top: '15%', bottom: '15%', width: 4, backgroundColor: C.purple, transformOrigin: 'top', zIndex: 2 }}
       />
 
       {/* Floating ✦ accents */}
       <motion.div
-        animate={{ rotate: [0, 360], opacity: [0.12, 0.28, 0.12] }}
+        animate={{ rotate: [0, 360], opacity: [0.18, 0.38, 0.18] }}
         transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', top: '12%', right: '6%', fontFamily: 'serif', fontSize: 96, color: C.pink, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', zIndex: 1 }}
+        style={{ position: 'absolute', top: '12%', right: '6%', fontFamily: 'serif', fontSize: 96, color: C.purple, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', zIndex: 1 }}
       >✦</motion.div>
       <motion.div
-        animate={{ rotate: [0, -360], opacity: [0.06, 0.14, 0.06] }}
+        animate={{ rotate: [0, -360], opacity: [0.10, 0.22, 0.10] }}
         transition={{ duration: 42, repeat: Infinity, ease: 'linear', delay: 8 }}
-        style={{ position: 'absolute', bottom: '10%', left: '8%', fontFamily: 'serif', fontSize: 52, color: C.purple, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', zIndex: 1 }}
+        style={{ position: 'absolute', bottom: '10%', left: '8%', fontFamily: 'serif', fontSize: 52, color: C.pink, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', zIndex: 1 }}
       >✦</motion.div>
 
       <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 2, paddingLeft: 20 }}>
         {/* Label */}
         <Reveal>
-          <p style={{ fontFamily: 'Sora, sans-serif', color: C.pink, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 28 }}>
+          <p style={{ fontFamily: 'Sora, sans-serif', color: C.purple, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: 28 }}>
             The Belief
           </p>
         </Reveal>
 
         <h2 style={{ marginBottom: 40 }}>
-          {/* ── Line 1 — Fraunces serif bold, cream ── */}
+          {/* ── Line 1 — Fraunces serif bold, white ── */}
           {editMode ? (
             <ET path="home.statementLine1" as="div"
-              style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: C.cream, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 6 }}
+              style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 6 }}
             />
           ) : (
             <div style={{ display: 'block', marginBottom: 6 }}>
               {words1.map((word, i) => (
                 <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'bottom' }}>
                   <motion.span
-                    style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: C.cream, letterSpacing: '-0.025em', lineHeight: 1.05 }}
+                    style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.05 }}
                     initial={{ y: '115%' }}
                     whileInView={{ y: '0%' }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, amount: 0.3 }}
                     transition={{ delay: i * 0.07, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
                   >
                     {word}
@@ -549,20 +544,20 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
               ))}
             </div>
           )}
-          {/* ── Line 2 — Sora light italic, muted ── */}
+          {/* ── Line 2 — Sora light italic, visible white ── */}
           {editMode ? (
             <ET path="home.statementLine2" as="div"
-              style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: `${C.cream}50`, letterSpacing: '-0.01em', lineHeight: 1.2 }}
+              style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.65)', letterSpacing: '-0.01em', lineHeight: 1.2 }}
             />
           ) : (
             <div style={{ display: 'block' }}>
               {words2.map((word, i) => (
                 <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'bottom' }}>
                   <motion.span
-                    style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: `${C.cream}55`, letterSpacing: '-0.01em', lineHeight: 1.2 }}
+                    style={{ display: 'block', fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3.2vw, 2.8rem)', fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.65)', letterSpacing: '-0.01em', lineHeight: 1.2 }}
                     initial={{ y: '115%' }}
                     whileInView={{ y: '0%' }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, amount: 0.3 }}
                     transition={{ delay: words1.length * 0.07 + i * 0.07, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
                   >
                     {word}
@@ -578,10 +573,10 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
             <motion.button onClick={() => navigate('/work')}
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              style={{ backgroundColor: C.pink, color: C.void, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
+              style={{ backgroundColor: C.purple, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
               See the work <ArrowUpRight size={13} />
             </motion.button>
-            <span style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}30`, fontSize: 12, fontWeight: 700 }}>
+            <span style={{ fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.35)', fontSize: 12, fontWeight: 700 }}>
               {content.caseStudies.length}+ brands built
             </span>
           </div>
