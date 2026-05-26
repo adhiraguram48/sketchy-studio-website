@@ -441,7 +441,7 @@ function HeroSection({ navigate, content }: { navigate: (p: string) => void; con
           style={{ position: 'relative' }}
         >
           <motion.img
-            src="https://framerusercontent.com/images/MaPnGXPaPK2dZwRClzHmX6NiHE.png?scale-down-to=512"
+            src="/cat-sit.png"
             alt="The Sketchy Studio cat"
             whileHover={{ scale: 1.06, filter: 'drop-shadow(0 0 44px rgba(155,92,232,0.75)) drop-shadow(0 0 18px rgba(155,92,232,0.5))' }}
             style={{ width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 0 28px rgba(155,92,232,0.55))' }}
@@ -538,6 +538,30 @@ function Statement({ navigate, content }: { navigate: (p: string) => void; conte
 
   return (
     <section style={{ backgroundColor: C.void, padding: '108px 48px', overflow: 'hidden', position: 'relative' }}>
+
+      {/* ── Cat — peeks in from the right edge with a head-tilt ── */}
+      <motion.div
+        style={{ position: 'absolute', right: -10, bottom: 40, width: 130, zIndex: 3, pointerEvents: 'none', userSelect: 'none' }}
+        initial={{ x: 140, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ delay: 0.55, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.img
+          src="/cat-peek.png"
+          alt=""
+          animate={{ rotate: [-8, -3, -8], y: [0, -8, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 0 18px rgba(155,92,232,0.5))' }}
+        />
+        {/* Mustard sparkle above the peeking cat */}
+        <motion.span
+          animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
+          transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 3.4, ease: 'easeInOut', delay: 0.8 }}
+          style={{ position: 'absolute', top: 0, left: -16, fontFamily: 'serif', fontSize: 14, color: C.mustard, lineHeight: 1 }}
+        >✦</motion.span>
+      </motion.div>
+
       {/* Purple accent bar — left edge */}
       <motion.div
         initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }}
@@ -779,42 +803,67 @@ function CTASection({ navigate, content }: { navigate: (p: string) => void; cont
   const ctaLine2 = ctaIdx >= 0 ? content.home.ctaHeadline.slice(ctaIdx + 1).trim() : '';
 
   return (
-    <section style={{ backgroundColor: C.pink, padding: '108px 48px', overflow: 'hidden', position: 'relative' }}>
+    <section style={{ background: `linear-gradient(135deg, ${C.void} 0%, #1a1030 50%, ${C.void} 100%)`, padding: '108px 48px', overflow: 'hidden', position: 'relative', borderTop: `1px solid ${C.surface}` }}>
+      {/* Purple gradient glow */}
+      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 70% 60% at 50% 50%, ${C.purple}22 0%, transparent 70%)`, pointerEvents: 'none' }} />
+
       {/* Floating micro-elements */}
       <motion.div animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ position: 'absolute', top: '20%', right: '8%', width: 64, height: 64, borderRadius: 14, backgroundColor: `${C.void}14`, border: `1px solid ${C.void}20`, pointerEvents: 'none' }} />
+        style={{ position: 'absolute', top: '20%', right: '8%', width: 64, height: 64, borderRadius: 14, backgroundColor: `${C.purple}14`, border: `1px solid ${C.purple}28`, pointerEvents: 'none' }} />
       <motion.div animate={{ y: [0, 16, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        style={{ position: 'absolute', bottom: '25%', left: '6%', width: 40, height: 40, borderRadius: '50%', backgroundColor: `${C.void}10`, border: `1px solid ${C.void}18`, pointerEvents: 'none' }} />
-      <motion.div animate={{ rotate: [0, 360], opacity: [0.05, 0.14, 0.05] }} transition={{ duration: 32, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', bottom: '12%', right: '15%', fontFamily: 'serif', fontSize: 96, color: C.void, lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>✦</motion.div>
+        style={{ position: 'absolute', bottom: '25%', left: '6%', width: 40, height: 40, borderRadius: '50%', backgroundColor: `${C.mint}10`, border: `1px solid ${C.mint}20`, pointerEvents: 'none' }} />
+      <motion.div animate={{ rotate: [0, 360], opacity: [0.08, 0.2, 0.08] }} transition={{ duration: 32, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', bottom: '12%', right: '15%', fontFamily: 'serif', fontSize: 96, color: C.purple, lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>✦</motion.div>
+
+      {/* ── Cat — lounging at bottom-left, lazily waving ── */}
+      <motion.div
+        style={{ position: 'absolute', bottom: 0, left: '3%', width: 150, zIndex: 3, pointerEvents: 'none', userSelect: 'none' }}
+        initial={{ y: 80, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ delay: 0.4, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.img
+          src="/cat-lounge.png"
+          alt=""
+          animate={{ y: [0, -10, 0], rotate: [0, 3, 0] }}
+          transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          style={{ width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 0 22px rgba(155,92,232,0.45))' }}
+        />
+        <motion.span
+          animate={{ opacity: [0, 1, 0], scale: [0.5, 1.3, 0.5], rotate: [0, 90, 180] }}
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 5, ease: 'easeInOut', delay: 2 }}
+          style={{ position: 'absolute', top: '20%', right: -18, fontFamily: 'serif', fontSize: 12, color: C.mint, lineHeight: 1 }}
+        >✦</motion.span>
+      </motion.div>
 
       <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end">
           <Reveal from="left">
             <h2 style={{ marginBottom: 0 }}>
-              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: C.void, fontSize: 'clamp(2.8rem, 6.5vw, 6rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05 }}>
+              <span style={{ display: 'block', fontFamily: 'Fraunces, Georgia, serif', color: '#ffffff', fontSize: 'clamp(2.8rem, 6.5vw, 6rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05 }}>
                 {ctaLine1}
               </span>
               {ctaLine2 && (
-                <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: `${C.void}72`, fontSize: 'clamp(1.6rem, 3.8vw, 3.4rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
+                <span style={{ display: 'block', fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.45)', fontSize: 'clamp(1.6rem, 3.8vw, 3.4rem)', fontWeight: 300, fontStyle: 'italic', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
                   {ctaLine2}
                 </span>
               )}
             </h2>
           </Reveal>
           <Reveal from="right" delay={0.12}>
-            <p style={{ fontFamily: 'Sora, sans-serif', color: `${C.void}65`, lineHeight: 1.8, fontSize: '1.05rem', marginBottom: 36 }}>{content.home.ctaSub}</p>
+            <p style={{ fontFamily: 'Sora, sans-serif', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: 36 }}>{content.home.ctaSub}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <motion.button
                 onClick={() => navigate('/contact')}
                 whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}
-                animate={{ boxShadow: [`0 8px 32px rgba(0,0,0,0.2)`, `0 16px 56px rgba(0,0,0,0.38)`, `0 8px 32px rgba(0,0,0,0.2)`] }}
+                animate={{ boxShadow: [`0 0 24px ${C.purple}40`, `0 0 56px ${C.purple}70`, `0 0 24px ${C.purple}40`] }}
                 transition={{ boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } } as any}
-                style={{ backgroundColor: C.void, color: C.cream, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, border: 'none', cursor: 'pointer' }}>
+                style={{ background: `linear-gradient(135deg, ${C.purple} 0%, ${C.pink} 100%)`, color: '#ffffff', fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, border: 'none', cursor: 'pointer' }}>
                 Start a Project
               </motion.button>
               <motion.button onClick={() => navigate('/work')} whileHover={{ scale: 1.05, y: -3 }}
-                style={{ backgroundColor: 'transparent', color: `${C.void}80`, border: `2px solid ${C.void}35`, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, cursor: 'pointer' }}>
+                style={{ backgroundColor: 'transparent', color: 'rgba(255,255,255,0.65)', border: `2px solid rgba(255,255,255,0.22)`, fontFamily: 'Sora, sans-serif', fontWeight: 900, fontSize: 12, textTransform: 'uppercase', letterSpacing: 2.5, padding: '16px 34px', borderRadius: 100, cursor: 'pointer' }}>
                 See Our Work
               </motion.button>
             </div>

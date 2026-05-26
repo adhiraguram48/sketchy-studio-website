@@ -8,11 +8,16 @@ import Journal from './pages/Journal';
 import JournalArticle from './pages/JournalArticle';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
+import Studio from './pages/Studio';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: Home,
+  },
+  {
+    path: '/studio',
+    Component: Studio,
   },
   {
     path: '/work',

@@ -63,9 +63,28 @@ function migrateContent(content: SiteContent): SiteContent {
 }
 
 const STORAGE_KEY = 'sketchy-studio-content';
+const SESSION_UNLOCK_KEY = 'sketchy-studio-unlocked';
+
+// Check sessionStorage for team unlock (persists for browser session only)
+function isSessionUnlocked() {
+  try { return sessionStorage.getItem(SESSION_UNLOCK_KEY) === 'true'; } catch { return false; }
+}
+
+export function unlockStudioSession() {
+  try { sessionStorage.setItem(SESSION_UNLOCK_KEY, 'true'); } catch {}
+}
+
+export function lockStudioSession() {
+  try { sessionStorage.removeItem(SESSION_UNLOCK_KEY); } catch {}
+}
+
+export function getStudioPass(): string {
+  return (import.meta.env.VITE_STUDIO_PASS as string) ?? 'sketchy2025';
+}
 
 export function EditProvider({ children }: { children: React.ReactNode }) {
-  const [editMode, setEditMode] = useState(false);
+  // Auto-enable edit mode if team member unlocked this session
+  const [editMode, setEditMode] = useState(() => isSessionUnlocked());
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
   const [backendReady, setBackendReady] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -107,7 +126,13 @@ export function EditProvider({ children }: { children: React.ReactNode }) {
     }, 1200);
   }, [content]);
 
-  const toggleEditMode = useCallback(() => setEditMode(prev => !prev), []);
+  const toggleEditMode = useCallback(() => {
+    setEditMode(prev => {
+      const next = !prev;
+      if (next) unlockStudioSession(); else lockStudioSession();
+      return next;
+    });
+  }, []);
 
   const updateField = useCallback((path: string, value: any) => {
     setContent(prev => setNestedValue(prev, path, value));

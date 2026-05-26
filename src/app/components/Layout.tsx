@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { motion, AnimatePresence, useScroll } from 'motion/react';
-import { Menu, X, Instagram, Mail, Phone, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Instagram, Mail, Phone, ArrowUpRight, PenLine } from 'lucide-react';
 import { C, DotTrio, CursorGlow, ScrollProgress } from './SketchyUI';
 import { EditPanel } from './EditPanel';
-import { useEdit } from '../context/EditContext';
+import { useEdit, lockStudioSession } from '../context/EditContext';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -239,7 +239,7 @@ export function Footer() {
         transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
       >
         <motion.img
-          src="https://framerusercontent.com/images/MaPnGXPaPK2dZwRClzHmX6NiHE.png?scale-down-to=256"
+          src="/cat-sit.png"
           alt=""
           animate={{ y: [0, -7, 0] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -259,6 +259,60 @@ function ScrollToTop() {
   return null;
 }
 
+// Floating edit mode indicator — only visible to team members in edit mode
+function EditModeBadge() {
+  const { editMode, toggleEditMode, syncStatus } = useEdit();
+  const navigate = useNavigate();
+  if (!editMode) return null;
+
+  const statusLabel = syncStatus === 'saving' ? 'Saving…' : syncStatus === 'saved' ? 'Saved ✓' : syncStatus === 'error' ? 'Error ✗' : 'Live editing';
+  const statusColor = syncStatus === 'saving' ? C.mustard : syncStatus === 'saved' ? C.lime : syncStatus === 'error' ? '#FF4040' : C.mint;
+
+  return (
+    <motion.div
+      initial={{ y: 80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      style={{
+        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 9998, display: 'flex', alignItems: 'center', gap: 10,
+        backgroundColor: C.void, border: `1px solid ${C.purple}50`,
+        borderRadius: 100, padding: '10px 18px',
+        boxShadow: `0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px ${C.purple}22`,
+      }}
+    >
+      {/* Pulse dot */}
+      <motion.span
+        animate={{ opacity: [1, 0.2, 1], scale: [1, 1.3, 1] }}
+        transition={{ duration: 1.6, repeat: Infinity }}
+        style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: statusColor, flexShrink: 0 }}
+      />
+      <PenLine size={13} color={C.purple} />
+      <span style={{ fontFamily: 'Sora, sans-serif', color: C.cream, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1.5, whiteSpace: 'nowrap' }}>
+        Edit Mode
+      </span>
+      <span style={{ fontFamily: 'Sora, sans-serif', color: statusColor, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, minWidth: 56, textAlign: 'center' }}>
+        {statusLabel}
+      </span>
+      {/* Divider */}
+      <span style={{ width: 1, height: 14, backgroundColor: `${C.cream}18`, flexShrink: 0 }} />
+      <motion.button
+        onClick={() => navigate('/studio')}
+        whileHover={{ color: C.purple }}
+        style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}50`, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        Studio
+      </motion.button>
+      <motion.button
+        onClick={() => { lockStudioSession(); toggleEditMode(); }}
+        whileHover={{ color: '#FF4040' }}
+        style={{ fontFamily: 'Sora, sans-serif', color: `${C.cream}40`, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        Exit
+      </motion.button>
+    </motion.div>
+  );
+}
+
 // Page layout wrapper
 export function PageLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -271,6 +325,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
       <main className="min-h-screen">{children}</main>
       <Footer />
       <EditPanel />
+      <EditModeBadge />
     </>
   );
 }
